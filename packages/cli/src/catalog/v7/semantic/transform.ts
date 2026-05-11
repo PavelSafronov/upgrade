@@ -1,7 +1,6 @@
 import type { API, FileInfo, Identifier } from 'jscodeshift';
 
 function addLeadingTodo(j: API['jscodeshift'], path: any, message: string): void {
-  // Walk up to the containing statement so the comment appears before the whole line
   let stmtPath: any = path;
   while (stmtPath.parent && !j.Statement.check(stmtPath.parent.node)) {
     stmtPath = stmtPath.parent;
@@ -16,12 +15,11 @@ function addLeadingTodo(j: API['jscodeshift'], path: any, message: string): void
   stmtNode.comments = [...(stmtNode.comments ?? []), comment];
 }
 
-export default function transform(file: FileInfo, api: API): string | undefined {
+export function transformAwsCredentials(file: FileInfo, api: API): string | undefined {
   const j = api.jscodeshift;
   const root = j(file.source);
   let dirty = false;
 
-  // aws-explicit-credentials: URI containing MONGODB-AWS with user:pass@ credentials
   root.find(j.StringLiteral).filter(path => {
     const val = path.node.value;
     return val.includes('authMechanism=MONGODB-AWS') && /\/\/.+:.+@/.test(val);
@@ -31,14 +29,28 @@ export default function transform(file: FileInfo, api: API): string | undefined 
     dirty = true;
   });
 
-  // mongodb-cr-auth
+  return dirty ? root.toSource() : undefined;
+}
+
+export function transformMongoCR(file: FileInfo, api: API): string | undefined {
+  const j = api.jscodeshift;
+  const root = j(file.source);
+  let dirty = false;
+
   root.find(j.StringLiteral, { value: 'MONGODB-CR' }).forEach(path => {
     addLeadingTodo(j, path,
       'MONGODB-CR auth mechanism has been removed. Switch to SCRAM-SHA-256 or another supported mechanism.');
     dirty = true;
   });
 
-  // client-metadata-props
+  return dirty ? root.toSource() : undefined;
+}
+
+export function transformClientMetadata(file: FileInfo, api: API): string | undefined {
+  const j = api.jscodeshift;
+  const root = j(file.source);
+  let dirty = false;
+
   const META_PROPS = new Set(['additionalDriverInfo', 'extendedMetadata']);
   root.find(j.MemberExpression).filter(path => {
     const prop = path.node.property;
@@ -49,7 +61,14 @@ export default function transform(file: FileInfo, api: API): string | undefined 
     dirty = true;
   });
 
-  // cursor-implicit-batch-size: batchSize: 1000 in options object
+  return dirty ? root.toSource() : undefined;
+}
+
+export function transformBatchSize(file: FileInfo, api: API): string | undefined {
+  const j = api.jscodeshift;
+  const root = j(file.source);
+  let dirty = false;
+
   root.find(j.ObjectProperty).filter(path => {
     const key = path.node.key;
     const val = path.node.value;
@@ -62,4 +81,14 @@ export default function transform(file: FileInfo, api: API): string | undefined 
   });
 
   return dirty ? root.toSource() : undefined;
+}
+
+// Combined transform used in tests (exercises all patterns at once)
+export default function transform(file: FileInfo, api: API): string | undefined {
+  let source = file.source;
+  for (const fn of [transformAwsCredentials, transformMongoCR, transformClientMetadata, transformBatchSize]) {
+    const result = fn({ ...file, source }, api);
+    if (result !== undefined) source = result;
+  }
+  return source !== file.source ? source : undefined;
 }

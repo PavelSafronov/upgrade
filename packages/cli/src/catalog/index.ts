@@ -9,7 +9,7 @@ import removeGridfsDeprecated from './v7/remove-gridfs-deprecated/transform.js';
 import findOneOptions from './v7/find-one-options/transform.js';
 import findOptionsGeneric from './v7/find-options-generic/transform.js';
 import removePropertyAccess from './v7/remove-property-access/transform.js';
-import semanticTransform from './v7/semantic/transform.js';
+import { transformAwsCredentials, transformMongoCR, transformClientMetadata, transformBatchSize } from './v7/semantic/transform.js';
 import { v7EnvChecks } from '../env/v7.js';
 
 const hop = { from: '6.x', to: '7.x' };
@@ -25,10 +25,10 @@ const v7Codemods: Codemod[] = [
   { id: 'find-one-options', description: 'Remove deprecated FindOneOptions properties (batchSize, limit, noCursorTimeout)', kind: 'mechanical', hop, packages: pkg, transform: findOneOptions },
   { id: 'find-options-generic', description: 'Remove type parameter from FindOptions<T>', kind: 'mechanical', hop, packages: pkg, transform: findOptionsGeneric },
   { id: 'remove-property-access', description: 'Replace removed property accesses with undefined + TODO comment', kind: 'mechanical', hop, packages: pkg, transform: removePropertyAccess },
-  { id: 'aws-explicit-credentials', description: 'Flag MONGODB-AWS URIs with embedded credentials', kind: 'semantic', hop, packages: pkg, transform: semanticTransform },
-  { id: 'mongodb-cr-auth', description: 'Flag MONGODB-CR auth mechanism usage', kind: 'semantic', hop, packages: pkg, transform: semanticTransform },
-  { id: 'client-metadata-props', description: 'Flag removed client metadata property accesses', kind: 'semantic', hop, packages: pkg, transform: semanticTransform },
-  { id: 'cursor-implicit-batch-size', description: 'Flag batchSize: 1000 that may have compensated for removed default', kind: 'semantic', hop, packages: pkg, transform: semanticTransform },
+  { id: 'aws-explicit-credentials', description: 'Flag MONGODB-AWS URIs with embedded credentials', kind: 'semantic', hop, packages: pkg, transform: transformAwsCredentials },
+  { id: 'mongodb-cr-auth', description: 'Flag MONGODB-CR auth mechanism usage', kind: 'semantic', hop, packages: pkg, transform: transformMongoCR },
+  { id: 'client-metadata-props', description: 'Flag removed client metadata property accesses', kind: 'semantic', hop, packages: pkg, transform: transformClientMetadata },
+  { id: 'cursor-implicit-batch-size', description: 'Flag batchSize: 1000 that may have compensated for removed default', kind: 'semantic', hop, packages: pkg, transform: transformBatchSize },
   ...v7EnvChecks.map(e => ({
     ...e,
     kind: 'env' as const,

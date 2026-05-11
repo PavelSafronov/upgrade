@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { glob } from 'glob';
 import jscodeshift, { type API } from 'jscodeshift';
@@ -64,7 +64,10 @@ export async function runEnvChecks(
   const envCodemods = codemods.filter(c => c.kind === 'env');
 
   for (const codemod of envCodemods) {
+    const pkgPath = join(cwd, 'package.json');
+    const backup = opts.dryRun && existsSync(pkgPath) ? readFileSync(pkgPath, 'utf8') : null;
     const result = codemod.check!(cwd);
+    if (backup !== null) writeFileSync(pkgPath, backup, 'utf8'); // restore on dry-run
     if (result.status !== 'ok') {
       changes.push({
         codemod: codemod.id,
