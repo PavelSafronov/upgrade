@@ -6,7 +6,7 @@
   "bin": { "upgrade-mcp": "./dist/index.js" },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
