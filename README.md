@@ -1,31 +1,49 @@
-# @mongodb-js/upgrade
+# MongoDB Upgrade Toolkit
 
-AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem.
+AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem. Deterministic codemods apply mechanical transforms automatically; semantic issues get `TODO` comments for human review; an MCP server lets Claude Code / Cursor / Copilot drive the whole thing.
 
 ## Packages
 
 | Package | Description |
 | --- | --- |
-| [`@mongodb-js/upgrade`](packages/cli) | Deterministic codemod CLI — detects your driver version, plans the staged upgrade path, applies mechanical transforms, and flags semantic issues for human review. No LLM, no network calls beyond `npm install`. |
-| [`@mongodb-js/upgrade-mcp`](packages/mcp) | MCP server that exposes upgrade-aware tools to AI agents (Claude Code, Cursor, Copilot, Windsurf). Thin orchestration layer over the CLI. |
+| [`@mongodb-js/upgrade`](packages/cli) | Codemod CLI — detects your driver version, plans the staged hop path, applies transforms, emits a report |
+| [`@mongodb-js/upgrade-mcp`](packages/mcp) | MCP server — exposes `analyze_repo`, `apply_codemod`, `explain_breaking_change` tools to AI agents |
 
-## Quick start
+## Supported upgrade paths
+
+| From | To | Status |
+| --- | --- | --- |
+| v6.x | v7.x | ✅ Phase 1 — complete |
+| v5.x | v6.x | 🔜 Phase 2 |
+| v4.x | v5.x | 🔜 Phase 2 |
+| v4.2.x | v5.x | 🔜 Phase 2 |
+
+## Quick start (CLI)
 
 ```bash
-npx @mongodb-js/upgrade
+# from your project root:
+npx @mongodb-js/upgrade                        # auto-detect version, apply all codemods
+npx @mongodb-js/upgrade --dry-run              # preview without writing
+npx @mongodb-js/upgrade --list                 # show all registered codemods
+npx @mongodb-js/upgrade --only stream-transform  # run one codemod
+npx @mongodb-js/upgrade --from 6 --to 7        # override version detection
 ```
 
-Run from your project root. Detects your `mongodb` version and applies all applicable transforms.
+See [packages/cli/README.md](packages/cli/README.md) for the full codemod catalog.
 
-```bash
-npx @mongodb-js/upgrade --dry-run    # preview changes without writing
-npx @mongodb-js/upgrade --list       # show available codemods
-npx @mongodb-js/upgrade --only=stream-transform  # run one codemod
-```
+## MCP server (for AI agents)
 
-## MCP server
+Once wired up, an agent can call three tools:
 
-Add to your agent config (Claude Code, Cursor, etc.):
+| Tool | What it does |
+| --- | --- |
+| `analyze_repo` | Detects version, plans hops, returns per-file breakdown of issues (dry-run) |
+| `apply_codemod` | Applies a named codemod or `"all"` codemods; supports `dryRun: true` |
+| `explain_breaking_change` | Returns description, before/after example, migration notes for any codemod ID |
+
+**Claude Code — this repo**: `.claude/settings.json` is already committed. Reopen the workspace and the `mongodb-upgrade` MCP server is available automatically.
+
+**Other projects**: add to your agent config:
 
 ```json
 {
@@ -38,25 +56,77 @@ Add to your agent config (Claude Code, Cursor, etc.):
 }
 ```
 
-## Docs
-
-- [Strategy](docs/strategy.md) — why this exists, what we're building, phased rollout plan
-- [Design spec](docs/specs/2026-05-11-mongodb-upgrade-toolkit-design.md) — architecture, catalog, test strategy
-- [Decisions](docs/decisions.md) — running log of decisions made during development
+See [packages/mcp/README.md](packages/mcp/README.md) for full tool schemas.
 
 ## Development
 
 ```bash
 npm install          # install all workspace dependencies
-npm run build        # build all packages
-npm test             # run all tests
+npm run build        # build both packages (tsup)
+npm test             # run all tests (vitest, 46 tests)
 ```
 
-## Supported upgrade paths
+### Testing the CLI manually
 
-| From | To | Status |
-| --- | --- | --- |
-| v6.x | v7.x | ✅ Phase 1 — in progress |
-| v5.x | v6.x | 🔜 Phase 2 |
-| v4.x | v5.x | 🔜 Phase 2 |
-| v4.2.x | v5.x | 🔜 Phase 2 |
+There is a kitchen-sink test app in `packages/test-app-v6` that contains every deprecated v6 API. It is tracked in git so you can reset it after any CLI run.
+
+```bash
+# 1. Preview what the CLI would change (no files written):
+node packages/cli/dist/index.js packages/test-app-v6 --dry-run
+
+# 2. Run the real upgrade:
+node packages/cli/dist/index.js packages/test-app-v6
+
+# 3. Inspect the diff:
+git diff packages/test-app-v6/
+
+# 4. Reset to the "before" state for the next demo:
+git checkout -- packages/test-app-v6/
+```
+
+### Testing the MCP server manually
+
+The MCP server speaks JSON-RPC over stdio. You can poke it directly:
+
+```bash
+# Start the server:
+node packages/mcp/dist/index.js
+
+# In another terminal, send a ListTools request:
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | node packages/mcp/dist/index.js
+
+# Or use the MCP inspector:
+npx @modelcontextprotocol/inspector node packages/mcp/dist/index.js
+```
+
+### Running individual codemod tests
+
+```bash
+cd packages/cli
+npm test                              # all 46 tests
+npm test -- stream-transform          # just one transform
+npm test -- integration               # integration tests against test-app-v6
+```
+
+## Repository layout
+
+```text
+packages/
+  cli/             @mongodb-js/upgrade — CLI and all codemod logic
+  mcp/             @mongodb-js/upgrade-mcp — MCP server (thin layer over CLI)
+  test-app-v6/     kitchen-sink app with every deprecated v6 API (demo target)
+  test-app-v5/     scaffolded for Phase 2 (v5→v6 codemods)
+  test-app-v4/     scaffolded for Phase 2 (v4→v5 codemods)
+  test-app-v4.2/   scaffolded for Phase 2 (v4.2→v5 codemods)
+docs/
+  specs/           design documents
+  plans/           implementation plans
+  decisions.md     timestamped decision log
+```
+
+## Docs
+
+- [Design spec](docs/specs/2026-05-11-mongodb-upgrade-toolkit-design.md)
+- [Implementation plan](docs/plans/2026-05-11-mongodb-upgrade-toolkit.md)
+- [Decisions log](docs/decisions.md)
+- [Strategy](docs/strategy.md)
