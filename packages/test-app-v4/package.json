@@ -1,0 +1,7 @@
+{
+  "name": "test-app-v4",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kitchen-sink app for v4→v5 upgrade testing (Phase 2)",
+  "dependencies": { "mongodb": "4.13.0" }
+}

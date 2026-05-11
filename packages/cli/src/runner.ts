@@ -46,7 +46,8 @@ export async function runCodemods(
 
       if (result != null && result !== source) {
         if (!opts.dryRun) writeFileSync(absPath, result, 'utf8');
-        changes.push({ codemod: codemod.id, file: relPath, status: 'applied' });
+        const status = codemod.kind === 'semantic' ? 'flagged' : 'applied';
+        changes.push({ codemod: codemod.id, file: relPath, status });
       }
     }
   }

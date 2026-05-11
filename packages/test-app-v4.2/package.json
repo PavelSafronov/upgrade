@@ -1,0 +1,7 @@
+{
+  "name": "test-app-v4-2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kitchen-sink app pinned to mongodb@4.2.0 — lowest supported 4.2.x (Phase 2)",
+  "dependencies": { "mongodb": "4.2.0" }
+}
