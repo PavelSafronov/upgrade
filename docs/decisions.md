@@ -44,6 +44,15 @@ Stdio chosen over HTTP for Phase 1. Zero infrastructure, zero auth surface. Supp
 **[10:50] v6→v7 catalog finalized**
 13 mechanical transforms, 5 semantic flags, 6 environmental checks. Source of truth: `node-mongodb-native/etc/notes/CHANGES_7.0.0.md`. Full table in design doc.
 
+**[12:55] Multiple test apps — one per starting version**
+Four kitchen-sink apps: `test-app-v6` (Phase 1, fully populated), `test-app-v5/v4/v4.2` (Phase 2, scaffolded). Each pinned to exact version. Git history is the demo — `git checkout -- packages/test-app-v6/` resets before-state.
+
+**[13:00] No branches — commit straight to main**
+Solo hackathon, no review workflow needed. Tag (`git tag demo-ready`) for snapshots instead of branches.
+
+**[13:10] Implementation plan written — 22 tasks**
+Covers monorepo scaffold → CLI core → v6→v7 codemods (13 mechanical + 5 semantic + 6 env) → test apps → MCP (3 tools). Three demo checkpoints. Saved to `docs/plans/2026-05-11-mongodb-upgrade-toolkit.md`.
+
 ---
 
 *Add entries here as decisions are made. Format: `[HH:MM] Decision — Reason`.*
