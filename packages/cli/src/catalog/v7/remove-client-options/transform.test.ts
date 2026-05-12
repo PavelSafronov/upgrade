@@ -28,10 +28,15 @@ describe('remove-client-options', () => {
     expect(run(source)).toBe(source);
   });
 
-  it('removes retryWrites from command options', () => {
-    const source = `db.command({}, { retryWrites: false, comment: 'x' });`;
+  it('removes retryWrites from command options in a mongodb file', () => {
+    const source = `import { MongoClient } from 'mongodb';\ndb.command({}, { retryWrites: false, comment: 'x' });`;
     const result = run(source);
     expect(result).not.toContain('retryWrites');
     expect(result).toContain('comment');
+  });
+
+  it('leaves retryWrites untouched in files with no mongodb import', () => {
+    const source = `db.command({}, { retryWrites: false, comment: 'x' });`;
+    expect(run(source)).toBe(source);
   });
 });
