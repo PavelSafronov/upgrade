@@ -5,6 +5,9 @@ const REMOVED_OPTIONS = new Set(['batchSize', 'limit', 'noCursorTimeout']);
 export default function transform(file: FileInfo, api: API): string | undefined {
   const j = api.jscodeshift;
   const root = j(file.source);
+
+  if (root.find(j.ImportDeclaration, { source: { value: 'mongodb' } }).length === 0) return undefined;
+
   let dirty = false;
 
   root.find(j.ObjectExpression).forEach(path => {
