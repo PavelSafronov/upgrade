@@ -2,9 +2,17 @@
   "name": "test-app-v6",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Kitchen-sink app using every mongodb v6 deprecated API — used as CLI upgrade demo target",
   "engines": { "node": ">=16.0.0" },
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "mongodb": "6.20.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^9.0.0",
+    "vitest": "^1.6.0"
   }
 }

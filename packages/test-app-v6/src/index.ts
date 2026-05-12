@@ -19,9 +19,15 @@ async function streamExample(client: MongoClient) {
 }
 
 // --- Mechanical: pool-retry-label ---
-function checkLabel(error: Error & { hasErrorLabel?: (l: string) => boolean }) {
-  if (error.hasErrorLabel?.('PoolRequstedRetry')) {
-    console.log('pool retry');
+export async function fireRequest(client: MongoClient): Promise<string | null> {
+  try {
+    await client.db('test').collection('items').findOne({});
+    return null;
+  } catch (error: any) {
+    if (error.hasErrorLabel?.('PoolRequstedRetry')) {
+      return error.message;
+    }
+    throw error;
   }
 }
 
@@ -36,7 +42,7 @@ function connectClient(uri: string) {
 
 // --- Mechanical: remove-deprecated-types ---
 const closeOpts: CloseOptions = {};
-const token: CancellationToken = new CancellationToken();
+const token: CancellationToken = {} as CancellationToken;
 const resumeOpts: ResumeOptions = {};
 const svrCaps: ServerCapabilities = {} as ServerCapabilities;
 const metaOpts: ClientMetadataOptions = {} as ClientMetadataOptions;
@@ -81,4 +87,4 @@ async function batchExample(client: MongoClient) {
   return cursor.toArray();
 }
 
-export { streamExample, checkLabel, connectClient, sessionExample, awsClient, crClient };
+export { streamExample, connectClient, sessionExample, metaExample, batchExample, awsClient, crClient };
