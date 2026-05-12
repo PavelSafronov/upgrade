@@ -8,7 +8,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "bump": "npm version --workspaces --include-workspace-root",
+    "bump": "npm version --include-workspace-root -w packages/cli -w packages/mcp -w packages/eslint-plugin",
     "release": "npm publish --access public -w packages/cli -w packages/mcp -w packages/eslint-plugin"
   }
 }
