@@ -27,10 +27,20 @@ export default function transform(file: FileInfo, api: API): string | undefined 
              ((p as ObjectProperty).key as Identifier).name === 'transform'
       ) as ObjectProperty;
 
+      const remainingProps = arg.properties.filter(
+        p => !(p.type === 'ObjectProperty' &&
+               (p as ObjectProperty).key.type === 'Identifier' &&
+               ((p as ObjectProperty).key as Identifier).name === 'transform')
+      );
+
+      const streamArgs = remainingProps.length > 0
+        ? [j.objectExpression(remainingProps as any[])]
+        : [];
+
       j(path).replaceWith(
         j.callExpression(
           j.memberExpression(
-            j.callExpression(path.node.callee as MemberExpression, []),
+            j.callExpression(path.node.callee as MemberExpression, streamArgs),
             j.identifier('map')
           ),
           [transformProp.value as Expression]

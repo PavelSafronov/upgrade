@@ -32,4 +32,12 @@ describe('stream-transform', () => {
     const source = `const s = cursor.stream({ objectMode: true });`;
     expect(run(source)).toBe(source);
   });
+
+  it('preserves sibling options when transform is not the only key', () => {
+    const source = `const s = cursor.stream({ transform: JSON.stringify, highWaterMark: 16 });`;
+    const result = run(source);
+    expect(result).toContain('highWaterMark: 16');
+    expect(result).toContain('.map(JSON.stringify)');
+    expect(result).not.toContain('transform:');
+  });
 });
