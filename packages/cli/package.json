@@ -3,17 +3,36 @@
   "version": "0.1.0",
   "description": "Deterministic codemod CLI for upgrading the MongoDB Node.js driver",
   "type": "module",
-  "bin": { "upgrade": "./dist/index.js" },
+  "bin": {
+    "upgrade": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "import": "./dist/index.js", "require": "./dist/index.cjs" },
-    "./detect": { "import": "./dist/detect.js" },
-    "./plan": { "import": "./dist/plan.js" },
-    "./runner": { "import": "./dist/runner.js" },
-    "./catalog/index": { "import": "./dist/catalog/index.js" },
-    "./catalog/types": { "import": "./dist/catalog/types.js" }
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./detect": {
+      "import": "./dist/detect.js"
+    },
+    "./plan": {
+      "import": "./dist/plan.js"
+    },
+    "./runner": {
+      "import": "./dist/runner.js"
+    },
+    "./catalog/index": {
+      "import": "./dist/catalog/index.js"
+    },
+    "./catalog/types": {
+      "import": "./dist/catalog/types.js"
+    }
   },
   "scripts": {
     "build": "tsup",

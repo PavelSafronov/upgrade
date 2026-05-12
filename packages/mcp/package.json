@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "MCP server exposing MongoDB driver upgrade tools to AI agents",
   "type": "module",
-  "bin": { "upgrade-mcp": "./dist/index.js" },
+  "bin": {
+    "upgrade-mcp": "dist/index.js"
+  },
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "test": "vitest run --passWithNoTests"
