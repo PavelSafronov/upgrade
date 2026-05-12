@@ -1,11 +1,61 @@
-// Phase 2: populate with v4→v5 deprecated APIs.
-// Patterns to add:
-//   - Callback-based API (removed in v5 — the big one)
-//   - Collection.insert / Collection.update / Collection.remove (removed in v5)
-//   - Collection.mapReduce() (removed in v5)
-//   - ObjectID (renamed to ObjectId in v5)
-//   - slaveOk options
-//   - Custom Promise library support (removed in v5)
-//   - BulkWriteOptions.keepGoing (removed in v5)
+import { MongoClient, ObjectID } from 'mongodb';
 
-export {};
+// --- Mechanical: objectid-rename ---
+export const legacyId = new ObjectID('507f1f77bcf86cd799439011');
+
+export function findById(client: MongoClient, id: ObjectID) {
+  return client.db('test').collection('items').findOne({ _id: id as any });
+}
+
+// --- Mechanical: remove-v4-options (slaveOk) ---
+export function connectWithSlaveOk(uri: string) {
+  return new MongoClient(uri, {
+    slaveOk: true,
+    maxPoolSize: 5,
+  } as any);
+}
+
+// --- Mechanical: remove-v4-options (promiseLibrary) ---
+export function connectWithPromiseLibrary(uri: string) {
+  return new MongoClient(uri, {
+    promiseLibrary: Promise,
+    maxPoolSize: 5,
+  } as any);
+}
+
+// --- Mechanical: remove-v4-options (keepGoing) ---
+export async function bulkWriteWithKeepGoing(client: MongoClient) {
+  return client
+    .db('test')
+    .collection('items')
+    .bulkWrite([{ insertOne: { document: { x: 1 } } }], { keepGoing: true } as any);
+}
+
+// --- Semantic: legacy-collection-methods ---
+export async function insertExample(client: MongoClient) {
+  return (client.db('test').collection('items') as any).insert({ x: 1 });
+}
+
+export async function updateExample(client: MongoClient) {
+  return (client.db('test').collection('items') as any).update({ x: 1 }, { $set: { x: 2 } });
+}
+
+export async function removeExample(client: MongoClient) {
+  return (client.db('test').collection('items') as any).remove({ x: 1 });
+}
+
+// --- Semantic: mapreduece-removed ---
+export async function mapReduceExample(client: MongoClient) {
+  return (client.db('test').collection('items') as any).mapReduce(
+    'function() { emit(this.x, 1); }',
+    'function(key, values) { return values.length; }',
+    { out: { inline: 1 } }
+  );
+}
+
+// --- Semantic: callback-api ---
+export function findWithCallback(client: MongoClient) {
+  (client.db('test').collection('items') as any).findOne({ x: 1 }, (err: any, doc: any) => {
+    console.log(doc);
+  });
+}
