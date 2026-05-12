@@ -93,4 +93,20 @@ describe('explainBreakingChange', () => {
   it('throws for an unknown id', () => {
     expect(() => explainBreakingChange({ id: 'nonexistent' })).toThrow('Unknown codemod: nonexistent');
   });
+
+  it('returns before/after example for a v5 codemod (objectid-rename)', () => {
+    const result = explainBreakingChange({ id: 'objectid-rename' });
+    expect(result.hop).toEqual({ from: '4.x', to: '5.x' });
+    expect(result.before).toContain('ObjectID');
+    expect(result.after).toContain('ObjectId');
+    expect(result.before).not.toBe('(no example available)');
+  });
+
+  it('returns before/after example for a v6 codemod (bulk-result-props)', () => {
+    const result = explainBreakingChange({ id: 'bulk-result-props' });
+    expect(result.hop).toEqual({ from: '5.x', to: '6.x' });
+    expect(result.before).toContain('nInserted');
+    expect(result.after).toContain('insertedCount');
+    expect(result.before).not.toBe('(no example available)');
+  });
 });
