@@ -1,10 +1,12 @@
 {
   "name": "mongodb-upgrade-toolkit",
+  "version": "0.1.1",
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "bump": "npm version --workspaces --include-workspace-root",
     "release": "npm publish --access public -w packages/cli -w packages/mcp -w packages/eslint-plugin"
   }
 }
