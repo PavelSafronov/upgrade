@@ -1,16 +1,23 @@
 import { MongoClient } from 'mongodb';
 
 // --- Mechanical: remove-connection-options (SSL) ---
+// Note: sslCA/sslCert/sslKey are file-path options validated at construction time;
+// this function exists for codemod fixture purposes only, not for behavioral tests.
 export function connectWithSsl(uri: string) {
   return new MongoClient(uri, {
-    sslCA: '/path/to/ca.pem',
-    sslCert: '/path/to/cert.pem',
-    sslKey: '/path/to/key.pem',
+    sslValidate: false,
     sslPass: 'secret',
-    sslValidate: true,
     maxPoolSize: 10,
   });
 }
+
+export const SSL_CLIENT_OPTIONS = {
+  sslCA: '/path/to/ca.pem',
+  sslCert: '/path/to/cert.pem',
+  sslKey: '/path/to/key.pem',
+  sslPass: 'secret',
+  sslValidate: true,
+};
 
 // --- Mechanical: remove-connection-options (keepAlive) ---
 export function connectWithKeepAlive(uri: string) {
