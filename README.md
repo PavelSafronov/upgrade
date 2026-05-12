@@ -13,10 +13,10 @@ AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem. Deterministic cod
 
 | From | To | Status |
 | --- | --- | --- |
-| v6.x | v7.x | ✅ Phase 1 — complete |
-| v5.x | v6.x | 🔜 Phase 2 |
-| v4.x | v5.x | 🔜 Phase 2 |
-| v4.2.x | v5.x | 🔜 Phase 2 |
+| v6.x | v7.x | ✅ complete |
+| v5.x | v6.x | ✅ complete |
+| v4.x | v5.x | ✅ complete |
+| v4.2.x | v5.x | ✅ complete |
 
 ## Quick start (CLI)
 
@@ -63,7 +63,7 @@ See [packages/mcp/README.md](packages/mcp/README.md) for full tool schemas.
 ```bash
 npm install          # install all workspace dependencies
 npm run build        # build both packages (tsup)
-npm test             # run all tests (vitest, 46 tests)
+npm test             # run all tests (vitest, 122 tests across all packages)
 ```
 
 ### Testing the CLI manually
@@ -103,9 +103,9 @@ npx @modelcontextprotocol/inspector node packages/mcp/dist/index.js
 
 ```bash
 cd packages/cli
-npm test                              # all 46 tests
+npm test                              # all 87 tests
 npm test -- stream-transform          # just one transform
-npm test -- integration               # integration tests against test-app-v6
+npm test -- integration               # integration tests against test-app-v4/v5/v6
 ```
 
 ## Repository layout
@@ -114,10 +114,10 @@ npm test -- integration               # integration tests against test-app-v6
 packages/
   cli/             @mongodb-js/upgrade — CLI and all codemod logic
   mcp/             @mongodb-js/upgrade-mcp — MCP server (thin layer over CLI)
-  test-app-v6/     kitchen-sink app with every deprecated v6 API (demo target)
-  test-app-v5/     scaffolded for Phase 2 (v5→v6 codemods)
-  test-app-v4/     scaffolded for Phase 2 (v4→v5 codemods)
-  test-app-v4.2/   scaffolded for Phase 2 (v4.2→v5 codemods)
+  test-app-v6/     kitchen-sink app with every deprecated v6 API (6.x→7.x demo target)
+  test-app-v5/     kitchen-sink app with every deprecated v5 API (5.x→6.x demo target)
+  test-app-v4/     kitchen-sink app with every deprecated v4 API (4.x→5.x demo target)
+  test-app-v4.2/   same patterns as test-app-v4, pinned to mongodb@4.2.0 (earliest v4)
 docs/
   specs/           design documents
   plans/           implementation plans
