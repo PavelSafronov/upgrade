@@ -11,6 +11,7 @@ import { buildReport } from './report.js';
 const TEST_APP_V6 = join(import.meta.dirname, '../../test-app-v6');
 const TEST_APP_V5 = join(import.meta.dirname, '../../test-app-v5');
 const TEST_APP_V4 = join(import.meta.dirname, '../../test-app-v4');
+const TEST_APP_V4_2 = join(import.meta.dirname, '../../test-app-v4.2');
 
 describe('CLI integration — test-app-v6', () => {
   let tmp: string;
@@ -405,5 +406,38 @@ describe('transform output — v5 semantic', () => {
 
   it('callback-api: inserts TODO before callback-style .findOne() call', () => {
     expect(transformed).toContain('TODO(mongodb-upgrade): Callback-based .findOne() has been removed in v5');
+  });
+});
+
+describe('CLI integration — test-app-v4.2', () => {
+  let tmp: string;
+
+  beforeEach(() => {
+    tmp = join(tmpdir(), `integration-test-v4-2-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V4_2, tmp, { recursive: true });
+  });
+  afterEach(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('detects mongodb@4.2.0', () => {
+    const result = detect(tmp);
+    expect(result).toEqual({ package: 'mongodb', current: '4.2.0' });
+  });
+
+  it('plans three hops 4.x → 5.x → 6.x → 7.x', () => {
+    const result = detect(tmp)!;
+    const plan = buildPlan(result.current);
+    expect(plan).toEqual([
+      { from: '4.x', to: '5.x' },
+      { from: '5.x', to: '6.x' },
+      { from: '6.x', to: '7.x' },
+    ]);
+  });
+
+  it('applies v5 mechanical transforms without error', async () => {
+    const codemods = getCatalog().filter(c => c.kind === 'mechanical' && c.hop.from === '4.x');
+    const changes = await runCodemods(codemods, tmp, { dryRun: false });
+    expect(changes.length).toBeGreaterThan(0);
+    expect(changes.every(c => c.status === 'applied')).toBe(true);
   });
 });
