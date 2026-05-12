@@ -39,7 +39,8 @@ program
       process.exit(1);
     }
 
-    const plan = buildPlan(detected.current, opts.to);
+    const planFrom = opts.from ? `${parseInt(opts.from, 10)}.0.0` : detected.current;
+    const plan = buildPlan(planFrom, opts.to);
 
     if (plan.length === 0) {
       console.log('Already at target version — nothing to do.');
