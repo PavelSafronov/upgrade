@@ -1,4 +1,5 @@
 import type { Codemod } from './types.js';
+import { v5Codemods } from './v5/index.js';
 import { v6Codemods } from './v6/index.js';
 import streamTransform from './v7/stream-transform/transform.js';
 import poolRetryLabel from './v7/pool-retry-label/transform.js';
@@ -37,7 +38,7 @@ const v7Codemods: Codemod[] = [
   })),
 ];
 
-export const catalog: Codemod[] = [...v6Codemods, ...v7Codemods];
+export const catalog: Codemod[] = [...v5Codemods, ...v6Codemods, ...v7Codemods];
 
 export function getCatalog(packages = ['mongodb']): Codemod[] {
   return catalog.filter(c => c.packages.some(p => packages.includes(p)));
