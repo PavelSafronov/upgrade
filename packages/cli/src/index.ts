@@ -1,6 +1,10 @@
 #!/usr/bin/env node
+import { createRequire } from 'node:module';
 import { Command } from 'commander';
 import { detect } from './detect.js';
+
+const _require = createRequire(import.meta.url);
+const { version } = _require('../package.json') as { version: string };
 import { buildPlan } from './plan.js';
 import { getCatalog, getById } from './catalog/index.js';
 import { runCodemods, runEnvChecks } from './runner.js';
@@ -11,6 +15,7 @@ const program = new Command();
 program
   .name('upgrade')
   .description('Upgrade your MongoDB Node.js driver')
+  .version(version)
   .option('--dry-run', 'show what would change without writing files')
   .option('--only <id>', 'run a single named codemod')
   .option('--list', 'list available codemods and exit')
