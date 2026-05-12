@@ -50,14 +50,20 @@ program
     const dryRun = opts.dryRun ?? false;
     const allChanges = [];
 
-    for (const hop of plan) {
-      const codemods = opts.only
-        ? [getById(opts.only)].filter(Boolean) as typeof catalog
-        : catalog.filter(c => c.hop.from === hop.from);
-
-      const changes = await runCodemods(codemods, projectPath, { dryRun });
-      const envChanges = await runEnvChecks(codemods, projectPath, { dryRun });
-      allChanges.push(...changes, ...envChanges);
+    if (opts.only) {
+      const codemod = getById(opts.only);
+      if (codemod) {
+        const changes = await runCodemods([codemod], projectPath, { dryRun });
+        const envChanges = await runEnvChecks([codemod], projectPath, { dryRun });
+        allChanges.push(...changes, ...envChanges);
+      }
+    } else {
+      for (const hop of plan) {
+        const codemods = catalog.filter(c => c.hop.from === hop.from);
+        const changes = await runCodemods(codemods, projectPath, { dryRun });
+        const envChanges = await runEnvChecks(codemods, projectPath, { dryRun });
+        allChanges.push(...changes, ...envChanges);
+      }
     }
 
     const report = buildReport(detected.package, detected.current, `${parseInt(opts.to ?? '7', 10)}.x`, allChanges);
