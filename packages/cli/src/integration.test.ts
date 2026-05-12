@@ -9,6 +9,7 @@ import { runCodemods, runEnvChecks } from './runner.js';
 import { buildReport } from './report.js';
 
 const TEST_APP_V6 = join(import.meta.dirname, '../../test-app-v6');
+const TEST_APP_V5 = join(import.meta.dirname, '../../test-app-v5');
 
 describe('CLI integration — test-app-v6', () => {
   let tmp: string;
@@ -158,5 +159,127 @@ describe('transform output — semantic', () => {
     expect(transformed).toContain(
       'TODO(mongodb-upgrade): batchSize: 1000 may have been compensating'
     );
+  });
+});
+
+describe('CLI integration — test-app-v5', () => {
+  let tmp: string;
+
+  beforeEach(() => {
+    tmp = join(tmpdir(), `integration-test-v5-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V5, tmp, { recursive: true });
+  });
+  afterEach(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('detects mongodb@5.8.1', () => {
+    const result = detect(tmp);
+    expect(result).toEqual({ package: 'mongodb', current: '5.8.1' });
+  });
+
+  it('plans two hops 5.x → 6.x → 7.x', () => {
+    const result = detect(tmp)!;
+    const plan = buildPlan(result.current);
+    expect(plan).toEqual([
+      { from: '5.x', to: '6.x' },
+      { from: '6.x', to: '7.x' },
+    ]);
+  });
+
+  it('applies all v6 mechanical transforms without error', async () => {
+    const codemods = getCatalog().filter(c => c.kind === 'mechanical' && c.hop.from === '5.x');
+    const changes = await runCodemods(codemods, tmp, { dryRun: false });
+    expect(changes.length).toBeGreaterThan(0);
+    expect(changes.every(c => c.status === 'applied')).toBe(true);
+  });
+
+  it('generates a report with mechanical and flagged entries for the v5 hop', async () => {
+    const codemods = getCatalog().filter(c => c.hop.from === '5.x');
+    const mechanical = codemods.filter(c => c.kind === 'mechanical');
+    const semantic = codemods.filter(c => c.kind === 'semantic');
+    const changes = [
+      ...await runCodemods(mechanical, tmp, { dryRun: false }),
+      ...await runCodemods(semantic, tmp, { dryRun: false }),
+    ];
+    const report = buildReport('mongodb', '5.8.1', '6.x', changes);
+    expect(report.summary.mechanical).toBeGreaterThan(0);
+    expect(report.summary.flagged).toBeGreaterThan(0);
+  });
+
+  it('bumps mongodb dep to ^6.0.0 via env check', async () => {
+    const codemods = getCatalog().filter(c => c.id === 'mongodb-dep-bump-v6');
+    await runEnvChecks(codemods, tmp, { dryRun: false });
+    const pkg = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf8'));
+    expect(pkg.dependencies.mongodb).toBe('^6.0.0');
+  });
+});
+
+describe('transform output — v6 mechanical', () => {
+  let tmp: string;
+  let transformed: string;
+
+  beforeAll(async () => {
+    tmp = join(tmpdir(), `v6-mechanical-output-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V5, tmp, { recursive: true });
+    const codemods = getCatalog().filter(c => c.kind === 'mechanical' && c.hop.from === '5.x');
+    await runCodemods(codemods, tmp, { dryRun: false });
+    transformed = readFileSync(join(tmp, 'src', 'index.ts'), 'utf8');
+  });
+
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('remove-connection-options-v6: removes sslValidate, sslPass from connectWithSsl', () => {
+    expect(transformed).not.toContain('sslValidate:');
+    expect(transformed).not.toContain('sslPass:');
+    expect(transformed).toContain('maxPoolSize');
+  });
+
+  it('remove-connection-options-v6: removes sslCA, sslCert, sslKey from SSL_CLIENT_OPTIONS', () => {
+    expect(transformed).not.toContain('sslCA:');
+    expect(transformed).not.toContain('sslCert:');
+    expect(transformed).not.toContain('sslKey:');
+  });
+
+  it('remove-connection-options-v6: removes keepAlive and keepAliveInitialDelay', () => {
+    expect(transformed).not.toContain('keepAlive:');
+    expect(transformed).not.toContain('keepAliveInitialDelay:');
+  });
+
+  it('bulk-result-props: replaces nInserted with undefined + TODO', () => {
+    expect(transformed).not.toMatch(/result\.nInserted/);
+    expect(transformed).toContain('TODO(mongodb-upgrade): BulkWriteResult.nInserted removed in v6');
+  });
+});
+
+describe('transform output — v6 semantic', () => {
+  let tmp: string;
+  let transformed: string;
+
+  beforeAll(async () => {
+    tmp = join(tmpdir(), `v6-semantic-output-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V5, tmp, { recursive: true });
+    const codemods = getCatalog().filter(c => c.kind === 'semantic' && c.hop.from === '5.x');
+    await runCodemods(codemods, tmp, { dryRun: false });
+    transformed = readFileSync(join(tmp, 'src', 'index.ts'), 'utf8');
+  });
+
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('db-adduser-removed: inserts TODO before addUser call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): db.addUser() has been removed in v6');
+  });
+
+  it('collection-stats-removed: inserts TODO before stats call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): collection.stats() has been removed in v6');
+  });
+
+  it('findoneand-metadata: inserts TODO before findOneAndUpdate without includeResultMetadata', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): findOneAndUpdate() now returns the document directly');
+  });
+
+  it('withtransaction-return: inserts TODO when return value is used', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): withTransaction() always returns void in v6');
   });
 });
