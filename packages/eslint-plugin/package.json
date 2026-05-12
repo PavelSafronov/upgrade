@@ -1,12 +1,15 @@
 {
   "name": "@pavel-safronov/eslint-plugin-mongodb-upgrade",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ESLint rules for upgrading the MongoDB Node.js driver (v4→v5→v6→v7)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
