@@ -2,6 +2,7 @@
   "name": "@pavel-safronov/eslint-plugin-mongodb-upgrade",
   "version": "0.1.2",
   "description": "ESLint rules for upgrading the MongoDB Node.js driver (v4→v5→v6→v7)",
+  "repository": { "type": "git", "url": "https://github.com/PavelSafronov/upgrade.git" },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
