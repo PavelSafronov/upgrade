@@ -11,11 +11,11 @@ export interface AnalyzeResult {
   fileBreakdown: Array<{ file: string; codemods: string[] }>;
 }
 
-export async function analyzeRepo({ path }: { path: string }): Promise<AnalyzeResult> {
+export async function analyzeRepo({ path, to = '7' }: { path: string; to?: string }): Promise<AnalyzeResult> {
   const detected = detect(path);
   if (!detected) throw new Error(`Could not detect mongodb version in ${path}/package.json`);
 
-  const plan = buildPlan(detected.current);
+  const plan = buildPlan(detected.current, to);
   const codemods = getCatalog().filter(c =>
     plan.some(hop => hop.from === c.hop.from)
   );

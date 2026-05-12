@@ -19,6 +19,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         type: 'object',
         properties: {
           path: { type: 'string', description: 'Absolute path to the project root' },
+          to: { type: 'string', description: 'Target major version (default: "7")' },
         },
         required: ['path'],
       },
@@ -54,7 +55,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   if (name === 'analyze_repo') {
-    return { content: [{ type: 'text', text: JSON.stringify(await analyzeRepo(args as { path: string }), null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify(await analyzeRepo(args as { path: string; to?: string }), null, 2) }] };
   }
   if (name === 'apply_codemod') {
     return { content: [{ type: 'text', text: JSON.stringify(await applyCodemod(args as { path: string; codemod: string; dryRun?: boolean }), null, 2) }] };
