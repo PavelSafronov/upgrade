@@ -35,17 +35,17 @@ Stdio chosen over HTTP for Phase 1. Zero infrastructure, zero auth surface. Supp
 
 1. Per-codemod fixture tests (vitest, hermetic, CI)
 2. Four kitchen-sink integration test apps — one per supported starting version, all git-tracked, CLI run produces the demo diff:
-   - `test-app-v6/` — mongodb@6.20.0 (Phase 1, fully populated)
-   - `test-app-v5/` — mongodb@5.8.1 (Phase 2, scaffolded)
-   - `test-app-v4/` — mongodb@4.13.0 (Phase 2, scaffolded)
-   - `test-app-v4.2/` — mongodb@4.2.0 lowest supported 4.2.x (Phase 2, scaffolded)
+   - `test-app-v6/` — mongodb@6.20.0 (fully populated)
+   - `test-app-v5/` — mongodb@5.8.1 (fully populated)
+   - `test-app-v4/` — mongodb@4.13.0 (fully populated)
+   - `test-app-v4.2/` — mongodb@4.2.0 lowest supported 4.2.x (fully populated)
 3. Real-world smoke: `code/testProject/` (already on mongodb@^6.19.0), GitHub search for `"mongodb": "^6"` repos
 
 **[10:50] v6→v7 catalog finalized**
 13 mechanical transforms, 5 semantic flags, 6 environmental checks. Source of truth: `node-mongodb-native/etc/notes/CHANGES_7.0.0.md`. Full table in design doc.
 
 **[12:55] Multiple test apps — one per starting version**
-Four kitchen-sink apps: `test-app-v6` (Phase 1, fully populated), `test-app-v5/v4/v4.2` (Phase 2, scaffolded). Each pinned to exact version. Git history is the demo — `git checkout -- packages/test-app-v6/` resets before-state.
+Four kitchen-sink apps: `test-app-v6/v5/v4/v4.2`, all fully populated. Each pinned to exact version. Git history is the demo — `git checkout -- packages/test-app-v6/` resets before-state.
 
 **[13:00] No branches — commit straight to main**
 Solo hackathon, no review workflow needed. Tag (`git tag demo-ready`) for snapshots instead of branches.
@@ -54,5 +54,17 @@ Solo hackathon, no review workflow needed. Tag (`git tag demo-ready`) for snapsh
 Covers monorepo scaffold → CLI core → v6→v7 codemods (13 mechanical + 5 semantic + 6 env) → test apps → MCP (3 tools). Three demo checkpoints. Saved to `docs/plans/2026-05-11-mongodb-upgrade-toolkit.md`.
 
 ---
+
+---
+
+## 2026-05-12 — Phase 2 + MCP completion
+
+**Phase 2 complete:** v5→v6 and v4→v5 codemods shipped. All four test apps fully populated. CLI handles the full 4.2→7 path in one invocation.
+
+**MCP server tests + examples added:** Unit tests for all three MCP tool functions (`analyzeRepo`, `applyCodemod`, `explainBreakingChange`). `EXAMPLES` map extended with before/after snippets for all 11 v5 and v6 codemods — previously only v7 was covered.
+
+**test-app-v4.2 Phase 2 complete:** Fixture populated, behavioral tests run against mongodb@4.2.0, CLI integration confirms version detection and three-hop plan for the oldest supported v4 release.
+
+**`buildReport` version format normalized:** `opts.to ?? '7.x'` in the CLI entry point was dead code (default `'7'` is never `undefined`). Fixed to `${parseInt(opts.to, 10)}.x` so CLI output now shows `4.13.0 → 7.x`, consistent with the hop format used throughout.
 
 *Add entries here as decisions are made. Format: `[HH:MM] Decision — Reason`.*

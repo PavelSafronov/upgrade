@@ -105,11 +105,13 @@ Beyond those three, there's a distribution channel we *uniquely* own: **Atlas co
 
 The phasing matters because we will not get budget or headcount for everything at once.
 
-**Phase 1 (Q1):** Codemod CLI covering v6 → v7 only. Smallest, most recent change surface; largest active user base. Ship the CLI scaffolding, the version-detection and planning logic, and codemods for the v6 → v7 mechanical changes. Wire it into the docs. This validates the architecture.
+**Phase 1 (Q1) ✅:** Codemod CLI covering v6 → v7 only. Smallest, most recent change surface; largest active user base. Shipped the CLI scaffolding, the version-detection and planning logic, and codemods for the v6 → v7 mechanical changes.
 
-**Phase 2 (Q2):** Backfill v5 → v6 and v4 → v5 codemods, including the hard callback-to-Promise transform (with an honest "this one will leave TODOs for you" disclaimer in the report). End of Phase 2 is when we can claim a customer on v4.2 can run one command and end up on v7.
+**Phase 2 (Q2) ✅:** Backfilled v5 → v6 and v4 → v5 codemods, including the callback-to-Promise semantic flag (with TODOs for human review). A customer on v4.2 can now run one command and get a full migration plan to v7, with mechanical transforms auto-applied and semantic issues flagged inline.
 
-**Phase 3 (Q3):** MCP server. Wraps the CLI, adds the explain/analyze/verify tools. Partnership outreach to agent vendors for registry placement.
+**Phase 3 (Q3) ✅:** MCP server. Wraps the CLI, adds `analyze_repo`, `apply_codemod`, and `explain_breaking_change` tools. Before/after examples populated for all v5, v6, and v7 codemods. Callable from Claude Code, Cursor, Copilot.
+
+**Phase 4 (Q4):** ESLint plugin. Atlas-team conversation about in-product nudges. Cross-team conversation with Mongoose maintainers about whether they want to consume our codemod primitives.
 
 **Phase 4 (Q4):** ESLint plugin. Atlas-team conversation about in-product nudges. Cross-team conversation with Mongoose maintainers about whether they want to consume our codemod primitives.
 

@@ -59,7 +59,7 @@ program
       allChanges.push(...changes, ...envChanges);
     }
 
-    const report = buildReport(detected.package, detected.current, opts.to ?? '7.x', allChanges);
+    const report = buildReport(detected.package, detected.current, `${parseInt(opts.to ?? '7', 10)}.x`, allChanges);
     printReport(report, dryRun);
     if (!dryRun) writeReportFile(report, projectPath);
   });
