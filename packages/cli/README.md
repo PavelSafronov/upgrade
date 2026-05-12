@@ -1,4 +1,4 @@
-# @mongodb-js/upgrade
+# @pavel-safronov/upgrade
 
 Deterministic codemod CLI for upgrading the MongoDB Node.js driver. Detects your current version from `package.json`, plans a staged multi-hop upgrade path, applies mechanical transforms automatically, inserts `TODO` comments for issues that require human judgment, and runs preflight environment checks.
 
@@ -7,23 +7,23 @@ No LLM. No network calls (beyond `npm install`). Every transform is tested again
 ## Install
 
 ```bash
-npm install -D @mongodb-js/upgrade
+npm install -D @pavel-safronov/upgrade
 # or run without installing:
-npx @mongodb-js/upgrade
+npx @pavel-safronov/upgrade
 ```
 
 ## Usage
 
 ```bash
 # Run from your project root (auto-detects mongodb version):
-npx @mongodb-js/upgrade
+npx @pavel-safronov/upgrade
 
 # Flags:
-npx @mongodb-js/upgrade --dry-run              # show what would change, write nothing
-npx @mongodb-js/upgrade --list                 # list all registered codemods
-npx @mongodb-js/upgrade --only stream-transform  # run one codemod by ID
-npx @mongodb-js/upgrade --from 6 --to 7        # override version detection
-npx @mongodb-js/upgrade /path/to/project       # specify project path explicitly
+npx @pavel-safronov/upgrade --dry-run              # show what would change, write nothing
+npx @pavel-safronov/upgrade --list                 # list all registered codemods
+npx @pavel-safronov/upgrade --only stream-transform  # run one codemod by ID
+npx @pavel-safronov/upgrade --from 6 --to 7        # override version detection
+npx @pavel-safronov/upgrade /path/to/project       # specify project path explicitly
 ```
 
 After a real run, `upgrade-report.json` is written to the project root with a machine-readable summary.
@@ -88,11 +88,11 @@ Mechanical transforms are applied automatically. Semantic transforms insert `// 
 The CLI is also importable as a library (used by the MCP server):
 
 ```typescript
-import { detect } from '@mongodb-js/upgrade/detect';
-import { buildPlan } from '@mongodb-js/upgrade/plan';
-import { getCatalog, getById } from '@mongodb-js/upgrade/catalog/index';
-import { runCodemods, runEnvChecks } from '@mongodb-js/upgrade/runner';
-import { buildReport, printReport } from '@mongodb-js/upgrade/report';
+import { detect } from '@pavel-safronov/upgrade/detect';
+import { buildPlan } from '@pavel-safronov/upgrade/plan';
+import { getCatalog, getById } from '@pavel-safronov/upgrade/catalog/index';
+import { runCodemods, runEnvChecks } from '@pavel-safronov/upgrade/runner';
+import { buildReport, printReport } from '@pavel-safronov/upgrade/report';
 ```
 
 ## Development

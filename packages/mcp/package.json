@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/upgrade-mcp",
+  "name": "@pavel-safronov/upgrade-mcp",
   "version": "0.1.0",
   "description": "MCP server exposing MongoDB driver upgrade tools to AI agents",
   "type": "module",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "@mongodb-js/upgrade": "*"
+    "@pavel-safronov/upgrade": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

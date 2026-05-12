@@ -6,8 +6,8 @@ AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem. Deterministic cod
 
 | Package | Description |
 | --- | --- |
-| [`@mongodb-js/upgrade`](packages/cli) | Codemod CLI — detects your driver version, plans the staged hop path, applies transforms, emits a report |
-| [`@mongodb-js/upgrade-mcp`](packages/mcp) | MCP server — exposes `analyze_repo`, `apply_codemod`, `explain_breaking_change` tools to AI agents |
+| [`@pavel-safronov/upgrade`](packages/cli) | Codemod CLI — detects your driver version, plans the staged hop path, applies transforms, emits a report |
+| [`@pavel-safronov/upgrade-mcp`](packages/mcp) | MCP server — exposes `analyze_repo`, `apply_codemod`, `explain_breaking_change` tools to AI agents |
 
 ## Supported upgrade paths
 
@@ -22,11 +22,11 @@ AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem. Deterministic cod
 
 ```bash
 # from your project root:
-npx @mongodb-js/upgrade                        # auto-detect version, apply all codemods
-npx @mongodb-js/upgrade --dry-run              # preview without writing
-npx @mongodb-js/upgrade --list                 # show all registered codemods
-npx @mongodb-js/upgrade --only stream-transform  # run one codemod
-npx @mongodb-js/upgrade --from 6 --to 7        # override version detection
+npx @pavel-safronov/upgrade                        # auto-detect version, apply all codemods
+npx @pavel-safronov/upgrade --dry-run              # preview without writing
+npx @pavel-safronov/upgrade --list                 # show all registered codemods
+npx @pavel-safronov/upgrade --only stream-transform  # run one codemod
+npx @pavel-safronov/upgrade --from 6 --to 7        # override version detection
 ```
 
 See [packages/cli/README.md](packages/cli/README.md) for the full codemod catalog.
@@ -50,7 +50,7 @@ Once wired up, an agent can call three tools:
   "mcpServers": {
     "mongodb-upgrade": {
       "command": "npx",
-      "args": ["@mongodb-js/upgrade-mcp"]
+      "args": ["@pavel-safronov/upgrade-mcp"]
     }
   }
 }
@@ -112,8 +112,8 @@ npm test -- integration               # integration tests against test-app-v4/v5
 
 ```text
 packages/
-  cli/             @mongodb-js/upgrade — CLI and all codemod logic
-  mcp/             @mongodb-js/upgrade-mcp — MCP server (thin layer over CLI)
+  cli/             @pavel-safronov/upgrade — CLI and all codemod logic
+  mcp/             @pavel-safronov/upgrade-mcp — MCP server (thin layer over CLI)
   test-app-v6/     kitchen-sink app with every deprecated v6 API (6.x→7.x demo target)
   test-app-v5/     kitchen-sink app with every deprecated v5 API (5.x→6.x demo target)
   test-app-v4/     kitchen-sink app with every deprecated v4 API (4.x→5.x demo target)

@@ -1,4 +1,4 @@
-import { getById } from '@mongodb-js/upgrade/catalog/index';
+import { getById } from '@pavel-safronov/upgrade/catalog/index';
 
 export interface ExplainResult {
   id: string;

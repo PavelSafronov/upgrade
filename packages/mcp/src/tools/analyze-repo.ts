@@ -1,7 +1,7 @@
-import { detect } from '@mongodb-js/upgrade/detect';
-import { buildPlan } from '@mongodb-js/upgrade/plan';
-import { getCatalog } from '@mongodb-js/upgrade/catalog/index';
-import { runCodemods } from '@mongodb-js/upgrade/runner';
+import { detect } from '@pavel-safronov/upgrade/detect';
+import { buildPlan } from '@pavel-safronov/upgrade/plan';
+import { getCatalog } from '@pavel-safronov/upgrade/catalog/index';
+import { runCodemods } from '@pavel-safronov/upgrade/runner';
 
 export interface AnalyzeResult {
   package: string;

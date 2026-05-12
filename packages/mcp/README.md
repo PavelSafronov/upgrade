@@ -1,13 +1,13 @@
-# @mongodb-js/upgrade-mcp
+# @pavel-safronov/upgrade-mcp
 
-MCP (Model Context Protocol) server that exposes MongoDB driver upgrade tools to AI agents. Thin orchestration layer over `@mongodb-js/upgrade` — all upgrade logic lives in the CLI package.
+MCP (Model Context Protocol) server that exposes MongoDB driver upgrade tools to AI agents. Thin orchestration layer over `@pavel-safronov/upgrade` — all upgrade logic lives in the CLI package.
 
 Compatible with: Claude Code, Cursor, Windsurf, Copilot, and any MCP-capable agent.
 
 ## Install
 
 ```bash
-npm install -D @mongodb-js/upgrade-mcp
+npm install -D @pavel-safronov/upgrade-mcp
 ```
 
 ## Wiring up
@@ -34,7 +34,7 @@ Or if the package is installed globally / via npx:
   "mcpServers": {
     "mongodb-upgrade": {
       "command": "npx",
-      "args": ["@mongodb-js/upgrade-mcp"]
+      "args": ["@pavel-safronov/upgrade-mcp"]
     }
   }
 }
