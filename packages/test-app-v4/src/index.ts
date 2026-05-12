@@ -8,11 +8,13 @@ export function findById(client: MongoClient, id: ObjectID) {
 }
 
 // --- Mechanical: remove-v4-options (slaveOk) ---
+// slaveOk throws MongoParseError at construction time in v4; shown as a standalone object
+export const SLAVE_OK_OPTIONS = {
+  slaveOk: true,
+};
+
 export function connectWithSlaveOk(uri: string) {
-  return new MongoClient(uri, {
-    slaveOk: true,
-    maxPoolSize: 5,
-  } as any);
+  return new MongoClient(uri, { maxPoolSize: 5 });
 }
 
 // --- Mechanical: remove-v4-options (promiseLibrary) ---
