@@ -22,9 +22,9 @@ export function buildReport(
     from,
     to,
     summary: {
-      mechanical: changes.filter(c => c.status === 'applied').length,
-      flagged: changes.filter(c => c.status === 'flagged').length,
-      env: 0,
+      mechanical: changes.filter(c => c.kind === 'mechanical' && c.status === 'applied').length,
+      flagged: changes.filter(c => c.kind !== 'env' && c.status === 'flagged').length,
+      env: changes.filter(c => c.kind === 'env').length,
     },
     changes,
   };
@@ -55,6 +55,9 @@ export function printReport(report: Report, dryRun: boolean): void {
     `  ${chalk.green(report.summary.mechanical + ' transforms applied')}` +
     (report.summary.flagged > 0
       ? `  ${chalk.yellow(report.summary.flagged + ' flagged for review')}`
+      : '') +
+    (report.summary.env > 0
+      ? `  ${chalk.cyan(report.summary.env + ' env checks updated')}`
       : '')
   );
 }

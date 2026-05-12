@@ -2,12 +2,13 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { glob } from 'glob';
 import jscodeshift, { type API } from 'jscodeshift';
-import type { Codemod } from './catalog/types.js';
+import type { Codemod, EnvCheckResult } from './catalog/types.js';
 
 export interface Change {
   codemod: string;
   file: string;
   status: 'applied' | 'flagged' | 'nothing-to-do';
+  kind: 'mechanical' | 'semantic' | 'env';
   note?: string;
 }
 
@@ -47,7 +48,7 @@ export async function runCodemods(
       if (result != null && result !== source) {
         if (!opts.dryRun) writeFileSync(absPath, result, 'utf8');
         const status = codemod.kind === 'semantic' ? 'flagged' : 'applied';
-        changes.push({ codemod: codemod.id, file: relPath, status });
+        changes.push({ codemod: codemod.id, file: relPath, status, kind: codemod.kind as 'mechanical' | 'semantic' });
       }
     }
   }
@@ -66,14 +67,19 @@ export async function runEnvChecks(
   for (const codemod of envCodemods) {
     const pkgPath = join(cwd, 'package.json');
     const backup = opts.dryRun && existsSync(pkgPath) ? readFileSync(pkgPath, 'utf8') : null;
-    const result = codemod.check!(cwd);
-    if (backup !== null) writeFileSync(pkgPath, backup, 'utf8'); // restore on dry-run
-    if (result.status !== 'ok') {
+    let result: EnvCheckResult | undefined;
+    try {
+      result = codemod.check!(cwd);
+    } finally {
+      if (backup !== null) writeFileSync(pkgPath, backup, 'utf8');
+    }
+    if (result!.status !== 'ok') {
       changes.push({
         codemod: codemod.id,
         file: 'package.json',
-        status: result.autoFixed && !opts.dryRun ? 'applied' : 'flagged',
-        note: result.message,
+        status: result!.autoFixed && !opts.dryRun ? 'applied' : 'flagged',
+        kind: 'env',
+        note: result!.message,
       });
     }
   }
