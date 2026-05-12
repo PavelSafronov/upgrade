@@ -16,7 +16,8 @@ const nodeVersionCheck: EnvCheck = (cwd) => {
   const engines = (pkg['engines'] as Record<string, string> | undefined) ?? {};
   const current = engines['node'] ?? '';
   const required = '>=16.0.0';
-  if (current && semver.satisfies('16.0.0', current)) {
+  const minCurrent = current ? semver.minVersion(current) : null;
+  if (minCurrent && semver.satisfies(minCurrent, required)) {
     return { status: 'ok', message: 'Node version requirement is satisfied' };
   }
   engines['node'] = required;
