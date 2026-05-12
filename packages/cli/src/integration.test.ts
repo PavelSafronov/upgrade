@@ -10,6 +10,7 @@ import { buildReport } from './report.js';
 
 const TEST_APP_V6 = join(import.meta.dirname, '../../test-app-v6');
 const TEST_APP_V5 = join(import.meta.dirname, '../../test-app-v5');
+const TEST_APP_V4 = join(import.meta.dirname, '../../test-app-v4');
 
 describe('CLI integration — test-app-v6', () => {
   let tmp: string;
@@ -281,5 +282,128 @@ describe('transform output — v6 semantic', () => {
 
   it('withtransaction-return: inserts TODO when return value is used', () => {
     expect(transformed).toContain('TODO(mongodb-upgrade): withTransaction() always returns void in v6');
+  });
+});
+
+describe('CLI integration — test-app-v4', () => {
+  let tmp: string;
+
+  beforeEach(() => {
+    tmp = join(tmpdir(), `integration-test-v4-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V4, tmp, { recursive: true });
+  });
+  afterEach(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('detects mongodb@4.13.0', () => {
+    const result = detect(tmp);
+    expect(result).toEqual({ package: 'mongodb', current: '4.13.0' });
+  });
+
+  it('plans three hops 4.x → 5.x → 6.x → 7.x', () => {
+    const result = detect(tmp)!;
+    const plan = buildPlan(result.current);
+    expect(plan).toEqual([
+      { from: '4.x', to: '5.x' },
+      { from: '5.x', to: '6.x' },
+      { from: '6.x', to: '7.x' },
+    ]);
+  });
+
+  it('applies all v5 mechanical transforms without error', async () => {
+    const codemods = getCatalog().filter(c => c.kind === 'mechanical' && c.hop.from === '4.x');
+    const changes = await runCodemods(codemods, tmp, { dryRun: false });
+    expect(changes.length).toBeGreaterThan(0);
+    expect(changes.every(c => c.status === 'applied')).toBe(true);
+  });
+
+  it('generates a report with mechanical and flagged entries for the v4 hop', async () => {
+    const codemods = getCatalog().filter(c => c.hop.from === '4.x');
+    const mechanical = codemods.filter(c => c.kind === 'mechanical');
+    const semantic = codemods.filter(c => c.kind === 'semantic');
+    const changes = [
+      ...await runCodemods(mechanical, tmp, { dryRun: false }),
+      ...await runCodemods(semantic, tmp, { dryRun: false }),
+    ];
+    const report = buildReport('mongodb', '4.13.0', '5.x', changes);
+    expect(report.summary.mechanical).toBeGreaterThan(0);
+    expect(report.summary.flagged).toBeGreaterThan(0);
+  });
+
+  it('bumps mongodb dep to ^5.0.0 via env check', async () => {
+    const codemods = getCatalog().filter(c => c.id === 'mongodb-dep-bump-v5');
+    await runEnvChecks(codemods, tmp, { dryRun: false });
+    const pkg = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf8'));
+    expect(pkg.dependencies.mongodb).toBe('^5.0.0');
+  });
+});
+
+describe('transform output — v5 mechanical', () => {
+  let tmp: string;
+  let transformed: string;
+
+  beforeAll(async () => {
+    tmp = join(tmpdir(), `v5-mechanical-output-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V4, tmp, { recursive: true });
+    const codemods = getCatalog().filter(c => c.kind === 'mechanical' && c.hop.from === '4.x');
+    await runCodemods(codemods, tmp, { dryRun: false });
+    transformed = readFileSync(join(tmp, 'src', 'index.ts'), 'utf8');
+  });
+
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('objectid-rename: renames ObjectID to ObjectId in import and usage', () => {
+    expect(transformed).not.toContain('ObjectID');
+    expect(transformed).toContain('ObjectId');
+  });
+
+  it('remove-v4-options: removes slaveOk from SLAVE_OK_OPTIONS', () => {
+    expect(transformed).not.toContain('slaveOk:');
+    expect(transformed).toContain('maxPoolSize');
+  });
+
+  it('remove-v4-options: removes promiseLibrary from connectWithPromiseLibrary', () => {
+    expect(transformed).not.toContain('promiseLibrary:');
+  });
+
+  it('remove-v4-options: removes keepGoing from bulkWriteWithKeepGoing', () => {
+    expect(transformed).not.toContain('keepGoing:');
+  });
+});
+
+describe('transform output — v5 semantic', () => {
+  let tmp: string;
+  let transformed: string;
+
+  beforeAll(async () => {
+    tmp = join(tmpdir(), `v5-semantic-output-${Date.now()}`);
+    mkdirSync(tmp, { recursive: true });
+    cpSync(TEST_APP_V4, tmp, { recursive: true });
+    const codemods = getCatalog().filter(c => c.kind === 'semantic' && c.hop.from === '4.x');
+    await runCodemods(codemods, tmp, { dryRun: false });
+    transformed = readFileSync(join(tmp, 'src', 'index.ts'), 'utf8');
+  });
+
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it('legacy-collection-methods: inserts TODO before .insert() call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): collection.insert() has been removed in v5');
+  });
+
+  it('legacy-collection-methods: inserts TODO before .update() call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): collection.update() has been removed in v5');
+  });
+
+  it('legacy-collection-methods: inserts TODO before .remove() call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): collection.remove() has been removed in v5');
+  });
+
+  it('mapreduece-removed: inserts TODO before .mapReduce() call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): collection.mapReduce() has been removed in v5');
+  });
+
+  it('callback-api: inserts TODO before callback-style .findOne() call', () => {
+    expect(transformed).toContain('TODO(mongodb-upgrade): Callback-based .findOne() has been removed in v5');
   });
 });
