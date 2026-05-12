@@ -8,6 +8,7 @@ AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem. Deterministic cod
 | --- | --- |
 | [`@pavel-safronov/upgrade`](packages/cli) | Codemod CLI — detects your driver version, plans the staged hop path, applies transforms, emits a report |
 | [`@pavel-safronov/upgrade-mcp`](packages/mcp) | MCP server — exposes `analyze_repo`, `apply_codemod`, `explain_breaking_change` tools to AI agents |
+| [`@pavel-safronov/eslint-plugin-mongodb-upgrade`](packages/eslint-plugin) | ESLint plugin — 13 rules covering v4→v5→v6→v7 breaking changes, with auto-fix support |
 
 ## Supported upgrade paths
 
@@ -103,7 +104,7 @@ npx @modelcontextprotocol/inspector node packages/mcp/dist/index.js
 
 ```bash
 cd packages/cli
-npm test                              # all 87 tests
+npm test                              # all 95 tests
 npm test -- stream-transform          # just one transform
 npm test -- integration               # integration tests against test-app-v4/v5/v6
 ```
@@ -114,6 +115,7 @@ npm test -- integration               # integration tests against test-app-v4/v5
 packages/
   cli/             @pavel-safronov/upgrade — CLI and all codemod logic
   mcp/             @pavel-safronov/upgrade-mcp — MCP server (thin layer over CLI)
+  eslint-plugin/   @pavel-safronov/eslint-plugin-mongodb-upgrade — 13 ESLint rules
   test-app-v6/     kitchen-sink app with every deprecated v6 API (6.x→7.x demo target)
   test-app-v5/     kitchen-sink app with every deprecated v5 API (5.x→6.x demo target)
   test-app-v4/     kitchen-sink app with every deprecated v4 API (4.x→5.x demo target)

@@ -5,6 +5,6 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "release": "npm publish --access public -w packages/cli -w packages/mcp"
+    "release": "npm publish --access public -w packages/cli -w packages/mcp -w packages/eslint-plugin"
   }
 }
