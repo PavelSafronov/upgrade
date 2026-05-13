@@ -1,6 +1,7 @@
 import type { API, FileInfo, ObjectProperty, Identifier, StringLiteral } from 'jscodeshift';
 
-const REMOVED_OPTIONS = new Set(['batchSize', 'limit', 'noCursorTimeout']);
+// 'limit' excluded: too generic a property name, causes false positives on bodyParser, pagination, etc.
+const REMOVED_OPTIONS = new Set(['batchSize', 'noCursorTimeout']);
 
 export default function transform(file: FileInfo, api: API): string | undefined {
   const j = api.jscodeshift;

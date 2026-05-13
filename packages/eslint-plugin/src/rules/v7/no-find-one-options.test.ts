@@ -24,9 +24,14 @@ describe('no-find-one-options', () => {
           output: `import { MongoClient } from 'mongodb'; collection.findOne({}, {  });`,
         },
         {
+          code: `import { MongoClient } from 'mongodb'; collection.findOne({}, { noCursorTimeout: true });`,
+          errors: [{ messageId: 'removed' }],
+          output: `import { MongoClient } from 'mongodb'; collection.findOne({}, {  });`,
+        },
+        {
           code: `import { MongoClient } from 'mongodb'; collection.findOne({}, { limit: 1, noCursorTimeout: true });`,
-          errors: [{ messageId: 'removed' }, { messageId: 'removed' }],
-          output: `import { MongoClient } from 'mongodb'; collection.findOne({}, {  noCursorTimeout: true });`,
+          errors: [{ messageId: 'removed' }],
+          output: `import { MongoClient } from 'mongodb'; collection.findOne({}, { limit: 1 });`,
         },
       ],
     });

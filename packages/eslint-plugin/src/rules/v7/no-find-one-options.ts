@@ -1,7 +1,8 @@
 import type { Rule } from 'eslint';
 import { isMongoDBSource, removeNode } from '../../utils.js';
 
-const REMOVED_OPTIONS = new Set(['batchSize', 'limit', 'noCursorTimeout']);
+// 'limit' excluded: too generic, causes false positives on bodyParser, pagination objects, etc.
+const REMOVED_OPTIONS = new Set(['batchSize', 'noCursorTimeout']);
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -11,7 +12,7 @@ const rule: Rule.RuleModule = {
       removed: "'{{name}}' was removed from FindOneOptions in mongodb v7. Remove this option.",
     },
     docs: {
-      description: 'Disallow removed FindOneOptions properties (batchSize, limit, noCursorTimeout) in v7',
+      description: 'Disallow removed FindOneOptions properties (batchSize, noCursorTimeout) in v7',
       url: 'https://www.mongodb.com/docs/drivers/node/current/reference/upgrade/',
     },
     schema: [],

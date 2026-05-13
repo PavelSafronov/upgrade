@@ -1,3 +1,5 @@
+import { GridFSBucket } from 'mongodb';
+
 const opts: GridFSBucketWriteStreamOptions = {
   contentType: 'text/plain',
   aliases: ['readme'],
