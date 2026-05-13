@@ -6,10 +6,21 @@ Living document. Update as work progresses.
 
 ## 🔲 Todos (immediate)
 
-- [ ] Publish v0.1.8 with the two bug fixes committed since v0.1.7 (`ac68e55`, `7257c33`) and push to origin
+- [x] ~~Publish v0.1.8 with the two bug fixes committed since v0.1.7~~ ✅ done
+- [ ] **Implement v4→v5 codemods** — plan at `docs/superpowers/plans/2026-05-12-v4-to-v5-codemods.md`
+- [ ] **Implement v5→v6 codemods** — plan at `docs/superpowers/plans/2026-05-12-v5-to-v6-codemods.md`
+- [ ] **Missed pattern mining** — grep the v6 repos in the landscape snapshot for patterns the CLI doesn't detect; cross-reference the v6→v7 changelog for coverage gaps (informs what to add before/during v4→v5 and v5→v6 work)
+- [ ] **ESLint plugin** — audit current state (`packages/eslint-plugin`), identify what's done vs. missing, bring to shippable state
+- [ ] **Landscape summary report** — small formatter over `tools/data/gh-search-*.json` showing version distribution, upgrade candidates, notable repos
+- [ ] **CI regression guard** — run smoke tests against a fixed corpus on each CLI release
+
+---
+
+## 🧪 Smoke tests (after the above)
+
+- [ ] Write formal smoke test reports for `robvanderleek/create-issue-branch` and `ayaka-notes/overleaf-pro` — both tested informally, bugs found, no reports written
 - [ ] Smoke test `erxes/erxes` (★3978, `^6.18.0`) — highest-star v6 repo, best bug surface
-- [ ] Run smoke tests against other high-star v6 repos from the landscape snapshot: `rubynor/bigfive-web` (★867), `haohanyang/mongodb-datasource` (★154)
-- [ ] Write formal smoke test reports for `robvanderleek/create-issue-branch` and `ayaka-notes/overleaf-pro` — both were tested informally (bugs 4 and 5 were found there) but no reports written
+- [ ] Smoke test `rubynor/bigfive-web` (★867) and `haohanyang/mongodb-datasource` (★154)
 
 ---
 
@@ -23,30 +34,20 @@ Living document. Update as work progresses.
 | GitHub ecosystem search tool | ✅ shipped | `tools/gh-search.ts`, outputs `tools/data/` |
 | Upgrade smoke-test skill | ✅ shipped | `docs/skills/upgrade-smoke-test.md`, installed locally at `~/.claude/skills/upgrade-smoke-test/` |
 | Historical upgrade analysis skill | ✅ shipped | `docs/skills/historical-upgrade-analysis.md`, installed locally; also exposed as MCP prompt |
-| v4→v5 codemods | 📋 planned | Plan at `docs/superpowers/plans/2026-05-12-v4-to-v5-codemods.md` |
-| v5→v6 codemods | 📋 planned | Plan at `docs/superpowers/plans/2026-05-12-v5-to-v6-codemods.md` |
-| GitHub Action wrapper | 📋 planned | Wraps CLI, opens upgrade PR; mentioned in `docs/strategy.md` §5 |
-| Mongoose cross-team conversation | 💡 idea | They may want to call our codemod primitives from their own upgrade tooling |
+| v4→v5 codemods | 🔲 next | Plan at `docs/superpowers/plans/2026-05-12-v4-to-v5-codemods.md` |
+| v5→v6 codemods | 🔲 next | Plan at `docs/superpowers/plans/2026-05-12-v5-to-v6-codemods.md` |
 
 ---
 
-## 🔭 Hypotheticals to explore
+## 🔭 Longer-horizon ideas
 
-- **Ongoing landscape monitoring** — re-run `gh-search` periodically (monthly?), accumulate snapshots, track version distribution over time. Useful for measuring ecosystem progress.
+- **Ongoing landscape monitoring** — re-run `gh-search` periodically (monthly?), accumulate snapshots, track version distribution over time.
 - **Atlas in-product nudge** — "your app is connecting with driver v4.2; we can help you upgrade." Atlas already sees driver versions in connection metadata. Would need Atlas team buy-in; mentioned in `docs/strategy.md` §5.
-- **CI integration for smoke tests** — run the smoke test skill automatically against a fixed corpus of repos on each CLI release, catch regressions before publish.
-- **Missed pattern mining** — grep a larger set of v6 repos for patterns the CLI doesn't currently detect. Cross-reference against the v6→v7 changelog to find gaps in codemod coverage.
-- **Flow file support** — the `tsx` parser cannot handle Flow-annotated `.js` files (e.g. parse-server). A separate parse pass with `@babel/parser` + `flow` plugin could unlock those files.
-
----
-
-## 🧭 Open proposals / natural next directions
-
-- **Expand `gh-search` coverage** — current queries find `filename:package.json mongodb` via GitHub code search. Adding CJS patterns (`require('mongodb')`) and alternate filenames would surface repos the current approach misses.
-- **Smoke test corpus curation** — maintain a short list of "canonical smoke test repos" across version ranges, with expected CLI output documented. Makes it easy to detect regressions.
-- **Landscape summary report** — `gh-search` outputs raw JSON; a small formatter that summarizes version distribution, upgrade candidates, and interesting repos would make the data more actionable.
-- **Full v4→v7 upgrade path** — the CLI infrastructure already handles multi-hop upgrades; the plan builder chains v4→v5, v5→v6, and v6→v7 automatically. The gap is that the v4→v5 and v5→v6 codemod catalogs are incomplete (plans written, not yet implemented). Completing those plans closes the full upgrade path.
-- **Codemod for `GridFSBucketWriteStreamOptions` rename** — may have changed in v7; worth checking the changelog and adding a transform if so.
+- **Flow file support** — the `tsx` parser cannot handle Flow-annotated `.js` files. A separate parse pass with `@babel/parser` + `flow` plugin could unlock those files.
+- **Expand `gh-search` coverage** — adding CJS patterns (`require('mongodb')`) and alternate filenames would surface repos the current approach misses.
+- **GitHub Action wrapper** — wraps CLI, opens upgrade PR automatically; mentioned in `docs/strategy.md` §5.
+- **Mongoose cross-team conversation** — they may want to call our codemod primitives from their own upgrade tooling.
+- **Codemod for `GridFSBucketWriteStreamOptions` rename** — may have changed in v7; worth checking the changelog.
 
 ---
 
