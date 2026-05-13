@@ -15,6 +15,7 @@ import noFindOneOptions from './v7/no-find-one-options.js';
 import noFindOptionsGeneric from './v7/no-find-options-generic.js';
 import noStreamTransform from './v7/no-stream-transform.js';
 import noDeprecatedPropertyAccess from './v7/no-deprecated-property-access.js';
+import noLegacyTimeoutOptions from './v7/no-legacy-timeout-options.js';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'no-objectid': noObjectid,
@@ -33,4 +34,5 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-find-options-generic': noFindOptionsGeneric,
   'no-stream-transform': noStreamTransform,
   'no-deprecated-property-access': noDeprecatedPropertyAccess,
+  'no-legacy-timeout-options': noLegacyTimeoutOptions,
 };
