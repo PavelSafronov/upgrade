@@ -26,8 +26,9 @@ const rule: Rule.RuleModule = {
         if (!hasMongoImport) return;
         if (node.typeName?.type !== 'Identifier') return;
         if (node.typeName.name !== 'FindOptions') return;
-        // @typescript-eslint/parser v7+ uses typeArguments; v6 used typeParameters
-        const typeArgs = node.typeArguments ?? node.typeParameters;
+        // @typescript-eslint/parser v7+ renamed typeParameters → typeArguments;
+        // using 'in' to avoid triggering the v7 deprecated getter for typeParameters
+        const typeArgs = 'typeArguments' in node ? (node as any).typeArguments : (node as any).typeParameters;
         if (!typeArgs) return;
         context.report({
           node: typeArgs,

@@ -9,10 +9,31 @@ Living document. Update as work progresses.
 - [x] ~~Publish v0.1.8 with the two bug fixes committed since v0.1.7~~ ✅ done
 - [x] ~~Implement v4→v5 codemods~~ ✅ done — 8 codemods, 97 tests passing
 - [x] ~~Implement v5→v6 codemods~~ ✅ done — 10 codemods, wired into catalog
-- [ ] **Missed pattern mining** — grep the v6 repos in the landscape snapshot for patterns the CLI doesn't detect; cross-reference the v6→v7 changelog for coverage gaps (informs what to add before/during v4→v5 and v5→v6 work)
-- [ ] **ESLint plugin** — audit current state (`packages/eslint-plugin`), identify what's done vs. missing, bring to shippable state
+- [x] ~~**Missed pattern mining**~~ ✅ done — see findings below
+- [x] ~~**ESLint plugin**~~ ✅ done — 17 rules (v4→v5→v6→v7), all tests passing, published as v0.1.8
 - [ ] **Landscape summary report** — small formatter over `tools/data/gh-search-*.json` showing version distribution, upgrade candidates, notable repos
 - [ ] **CI regression guard** — run smoke tests against a fixed corpus on each CLI release
+
+---
+
+## 🔍 Pattern mining findings (2026-05-13)
+
+Analyzed top 4 v6 repos from the landscape snapshot: `erxes/erxes`, `rubynor/bigfive-web`, `haohanyang/mongodb-datasource`, `robvanderleek/create-issue-branch`.
+
+**Coverage gaps identified vs. migration guides** (patterns not covered by any codemod):
+
+| Pattern | Hop | Real-world hits | Priority |
+| --- | --- | --- | --- |
+| `gssapiCanonicalizeHostName` option removed | v4→v5 | 0 hits in top repos | low — niche Kerberos use case |
+| Removed type exports (`Projection`, `ServerSelector`, `PipeOptions`, `ServerOptions`) | v4→v5 | 0 hits | low — consumed via TS only |
+| `BulkResult.lastOp()` / `.opTime` removed | v4→v5 | 0 hits | low — rare bulk API usage |
+| `commitTransaction()`/`abortTransaction()` now return `void` | v5→v6 | 0 hits | low — return value rarely used |
+| `CreateCollectionOptions.autoIndexId` removed | v6→v7 | 0 hits (1 hit in bundled dist only) | low |
+| `mongocryptdSpawnPath` / `cryptSharedLibPath` validation tightened | v6→v7 | 0 hits | low — CSFLE niche |
+
+**Key observation**: Most erxes MongoDB calls are via Mongoose (`models.X.findOneAndUpdate()`), not the raw driver. Our codemods target raw `mongodb` driver usage, so Mongoose-heavy apps are out of scope by design.
+
+**Conclusion**: No new codemods warranted from this analysis. The identified gaps are niche (Kerberos, CSFLE, GridFS edge cases) and absent from typical application code. CLI coverage is good for the common path.
 
 ---
 
@@ -30,7 +51,7 @@ Living document. Update as work progresses.
 | --- | --- | --- |
 | v6→v7 codemod CLI | ✅ shipped | `@pavel-safronov/upgrade` on npm |
 | MCP server | ✅ shipped | `packages/mcp`; v0.1.7 added `upgrade-smoke-test` and `historical-upgrade-analysis` as named MCP prompts |
-| ESLint plugin | 🚧 in progress | `packages/eslint-plugin` |
+| ESLint plugin | ✅ shipped | `packages/eslint-plugin`; 17 rules (v5/v6/v7), auto-fix for 13 rules, published v0.1.8 |
 | GitHub ecosystem search tool | ✅ shipped | `tools/gh-search.ts`, outputs `tools/data/` |
 | Upgrade smoke-test skill | ✅ shipped | `docs/skills/upgrade-smoke-test.md`, installed locally at `~/.claude/skills/upgrade-smoke-test/` |
 | Historical upgrade analysis skill | ✅ shipped | `docs/skills/historical-upgrade-analysis.md`, installed locally; also exposed as MCP prompt |

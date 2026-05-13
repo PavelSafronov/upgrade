@@ -8,7 +8,7 @@ AI-assisted upgrade toolkit for the MongoDB Node.js ecosystem. Deterministic cod
 | --- | --- |
 | [`@pavel-safronov/upgrade`](packages/cli) | Codemod CLI — detects your driver version, plans the staged hop path, applies transforms, emits a report |
 | [`@pavel-safronov/upgrade-mcp`](packages/mcp) | MCP server — exposes `analyze_repo`, `apply_codemod`, `explain_breaking_change` tools to AI agents |
-| [`@pavel-safronov/eslint-plugin-mongodb-upgrade`](packages/eslint-plugin) | ESLint plugin — 13 rules covering v4→v5→v6→v7 breaking changes, with auto-fix support |
+| [`@pavel-safronov/eslint-plugin-mongodb-upgrade`](packages/eslint-plugin) | ESLint plugin — 17 rules covering v4→v5→v6→v7 breaking changes, with auto-fix support |
 
 ## Supported upgrade paths
 
