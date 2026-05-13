@@ -34,6 +34,7 @@ After a real run, `upgrade-report.json` is written to the project root with a ma
 | --- | --- | --- |
 | `objectid-rename` | mechanical | `ObjectID` → `ObjectId` everywhere (import, type, and value sites) |
 | `remove-v4-options` | mechanical | Removes `slaveOk`, `promiseLibrary`, `keepGoing` from any options object |
+| `cursor-count` | semantic | `cursor.count()` removed in v5 — use `countDocuments()` or `estimatedDocumentCount()` |
 | `legacy-collection-methods` | semantic | `collection.insert()`, `.update()`, `.remove()` — removed in v5 |
 | `mapreduece-removed` | semantic | `collection.mapReduce()` — removed in v5 |
 | `callback-api` | semantic | Any known MongoDB method called with a callback as the last argument |
@@ -52,6 +53,8 @@ After a real run, `upgrade-report.json` is written to the project root with a ma
 | `collection-stats-removed` | semantic | `collection.stats()` — removed in v6 |
 | `findoneand-metadata` | semantic | `findOneAndUpdate/Replace/Delete` without `includeResultMetadata: true` (return type changed) |
 | `withtransaction-return` | semantic | Uses of the return value of `session.withTransaction()` (always `void` in v6) |
+| `write-concern-options` | semantic | Top-level `j`, `w`, `wtimeout` options — move into `writeConcern: { j, w, wtimeout }` |
+| `bool-coerce` | mechanical | Numeric booleans (`tls: 1` → `tls: true`) — coercion removed in v6 |
 | `node-version-v5to6` | env | Updates `engines.node` to `>=16.20.1` if needed |
 | `mongodb-dep-bump-v6` | env | Bumps `mongodb` dependency to `^6.0.0` |
 
@@ -69,13 +72,14 @@ Mechanical transforms are applied automatically. Semantic transforms insert `// 
 | `remove-client-options` | mechanical | Removes `useNewUrlParser`, `useUnifiedTopology`, `noResponse`, `retryWrites` from option objects |
 | `remove-deprecated-types` | mechanical | Strips removed type imports: `CloseOptions`, `CancellationToken`, `Transaction`, `ResumeOptions`, `ServerCapabilities`, `ClientMetadataOptions`, `FindOneOptions` |
 | `remove-gridfs-deprecated` | mechanical | Removes `contentType` and `aliases` from GridFS write stream options |
-| `find-one-options` | mechanical | Removes `batchSize`, `limit`, `noCursorTimeout` from `FindOneOptions` usage |
+| `find-one-options` | mechanical | Removes `batchSize`, `noCursorTimeout` from `FindOneOptions` usage |
 | `find-options-generic` | mechanical | `FindOptions<T>` → `FindOptions` (removes the type parameter) |
 | `remove-property-access` | mechanical | `ReadPreference.minWireVersion` and `session.transaction` → `undefined` + TODO comment |
 | `aws-explicit-credentials` | semantic | MONGODB-AWS URIs with embedded `user:pass@` credentials |
 | `mongodb-cr-auth` | semantic | `authMechanism: 'MONGODB-CR'` usage |
 | `client-metadata-props` | semantic | Access to `additionalDriverInfo`, `extendedMetadata` on client options |
 | `cursor-implicit-batch-size` | semantic | `batchSize: 1000` (may have been compensating for the removed default) |
+| `timeout-options` | semantic | `socketTimeoutMS`, `waitQueueTimeoutMS` deprecated in v6.11 — use `timeoutMS` |
 | `node-version` | env | Updates `engines.node` to `>=20.19.0` if needed |
 | `mongodb-dep-bump` | env | Bumps `mongodb` dependency to `^7.0.0` |
 | `bson-dep-bump` | env | Bumps `bson` to `^7.0.0` if present |
@@ -101,7 +105,7 @@ import { buildReport, printReport } from '@pavel-safronov/upgrade/report';
 cd packages/cli
 npm install
 npm run build    # tsup: ESM + CJS + .d.ts
-npm test         # vitest: 87 tests across 14 test files
+npm test         # vitest: 95 tests across 16 test files
 npm run dev      # watch mode
 ```
 

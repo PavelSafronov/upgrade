@@ -24,7 +24,7 @@ const v7Codemods: Codemod[] = [
   { id: 'remove-client-options', description: 'Remove deprecated MongoClient options (useNewUrlParser, useUnifiedTopology, noResponse, retryWrites)', kind: 'mechanical', hop, packages: pkg, transform: removeClientOptions },
   { id: 'remove-deprecated-types', description: 'Remove deprecated type imports from mongodb', kind: 'mechanical', hop, packages: pkg, transform: removeDeprecatedTypes },
   { id: 'remove-gridfs-deprecated', description: 'Remove deprecated GridFS options (contentType, aliases)', kind: 'mechanical', hop, packages: pkg, transform: removeGridfsDeprecated },
-  { id: 'find-one-options', description: 'Remove deprecated FindOneOptions properties (batchSize, limit, noCursorTimeout)', kind: 'mechanical', hop, packages: pkg, transform: findOneOptions },
+  { id: 'find-one-options', description: 'Remove deprecated FindOneOptions properties (batchSize, noCursorTimeout)', kind: 'mechanical', hop, packages: pkg, transform: findOneOptions },
   { id: 'find-options-generic', description: 'Remove type parameter from FindOptions<T>', kind: 'mechanical', hop, packages: pkg, transform: findOptionsGeneric },
   { id: 'remove-property-access', description: 'Replace removed property accesses with undefined + TODO comment', kind: 'mechanical', hop, packages: pkg, transform: removePropertyAccess },
   { id: 'aws-explicit-credentials', description: 'Flag MONGODB-AWS URIs with embedded credentials', kind: 'semantic', hop, packages: pkg, transform: transformAwsCredentials },
