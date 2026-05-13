@@ -27,4 +27,25 @@ describe('remove-gridfs-deprecated', () => {
     const source = `const opts = { chunkSizeBytes: 1024, metadata: {} };`;
     expect(run(source)).toBe(source);
   });
+
+  it('does not remove contentType from non-GridFS mongodb imports', () => {
+    // reproduces overleaf-pro false positive: file imports Binary/ObjectId from
+    // mongodb but passes contentType to an object-persistor (S3-style) API
+    const source = `
+import { Binary, ObjectId } from 'mongodb';
+await persistor.sendStream(bucket, key, stream, {
+  contentType: 'application/octet-stream',
+  contentLength: size,
+});`;
+    expect(run(source)).toBe(source);
+  });
+
+  it('still removes contentType when GridFSBucket is imported', () => {
+    const source = `
+import { GridFSBucket } from 'mongodb';
+const opts = { contentType: 'text/plain', chunkSizeBytes: 1024 };`;
+    const result = run(source);
+    expect(result).not.toContain('contentType');
+    expect(result).toContain('chunkSizeBytes');
+  });
 });

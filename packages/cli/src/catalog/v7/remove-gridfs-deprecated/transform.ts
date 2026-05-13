@@ -1,12 +1,21 @@
-import type { API, FileInfo, ObjectProperty, Identifier, StringLiteral } from 'jscodeshift';
+import type { API, FileInfo, ObjectProperty, Identifier, StringLiteral, ImportSpecifier } from 'jscodeshift';
 
 const REMOVED_OPTIONS = new Set(['contentType', 'aliases']);
+const GRIDFS_IDENTIFIERS = new Set(['GridFSBucket', 'GridFSBucketWriteStream', 'GridFSBucketWriteStreamOptions']);
 
 export default function transform(file: FileInfo, api: API): string | undefined {
   const j = api.jscodeshift;
   const root = j(file.source);
 
-  if (root.find(j.ImportDeclaration, { source: { value: 'mongodb' } }).length === 0) return undefined;
+  const hasGridFSImport = root
+    .find(j.ImportDeclaration, { source: { value: 'mongodb' } })
+    .some(path =>
+      path.node.specifiers?.some(
+        s => s.type === 'ImportSpecifier' && GRIDFS_IDENTIFIERS.has(((s as ImportSpecifier).imported as Identifier).name)
+      ) ?? false
+    );
+
+  if (!hasGridFSImport) return undefined;
 
   let dirty = false;
 
