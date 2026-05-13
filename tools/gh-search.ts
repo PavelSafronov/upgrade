@@ -12,7 +12,7 @@ export interface RepoEntry {
   stars: number;
   mongodbVersion: string;
   majorVersion: number;
-  depType: 'dependencies' | 'devDependencies';
+  depType: 'dependencies' | 'devDependencies' | 'peerDependencies';
   packageJsonPath: string;
   url: string;
 }
@@ -30,14 +30,14 @@ export interface SearchResult {
 
 export function parseMongodb(
   pkgText: string
-): { version: string; depType: 'dependencies' | 'devDependencies' } | null {
+): { version: string; depType: 'dependencies' | 'devDependencies' | 'peerDependencies' } | null {
   let pkg: Record<string, unknown>;
   try {
     pkg = JSON.parse(pkgText) as Record<string, unknown>;
   } catch {
     return null;
   }
-  for (const depType of ['dependencies', 'devDependencies'] as const) {
+  for (const depType of ['dependencies', 'devDependencies', 'peerDependencies'] as const) {
     const deps = pkg[depType] as Record<string, string> | undefined;
     if (deps?.mongodb) return { version: deps.mongodb, depType };
   }
@@ -128,8 +128,13 @@ function ghApiJson<T>(args: string[]): T {
 
 // ── Phase 1: REST code search ──────────────────────────────────────────────
 
-export function discoverRepos(limit: number): Map<string, DiscoverItem> {
-  const repos = new Map<string, DiscoverItem>();
+// Per repo, keep this many candidate package.json paths (sorted shortest-first).
+// Monorepos often have mongodb only in sub-packages, not the root; tracking
+// multiple candidates lets Phase 2 fall through to the right one.
+const MAX_CANDIDATES = 3;
+
+export function discoverRepos(limit: number): Map<string, DiscoverItem[]> {
+  const repos = new Map<string, DiscoverItem[]>();
   let page = 1;
 
   while (repos.size < limit) {
@@ -154,10 +159,11 @@ export function discoverRepos(limit: number): Map<string, DiscoverItem> {
       // skip backup files like package.json.bak, package.json~ etc.
       if (item.path.split('/').pop() !== 'package.json') continue;
       const key = item.repository.full_name;
-      const existing = repos.get(key);
-      // prefer the package.json closest to the repo root (shortest path)
-      if (!existing || item.path.length < existing.path.length) {
-        repos.set(key, item);
+      const candidates = repos.get(key) ?? [];
+      if (candidates.length < MAX_CANDIDATES && !candidates.some(c => c.path === item.path)) {
+        candidates.push(item);
+        candidates.sort((a, b) => a.path.length - b.path.length);
+        repos.set(key, candidates);
       }
     }
 
@@ -201,15 +207,17 @@ async function main(): Promise<void> {
   const discovered = discoverRepos(limit);
   console.log(`Found ${discovered.size} unique repos. Fetching package.json contents...`);
 
-  const items = [...discovered.entries()].map(([fullName, item]) => {
+  // Flatten all candidate paths (shortest first within each repo).
+  // Repos with multiple candidates (monorepos) will have multiple entries here;
+  // Phase 2 stops at the first path that resolves to a mongodb version.
+  type FetchItem = { fullName: string; owner: string; name: string; path: string; url: string };
+  const items: FetchItem[] = [];
+  for (const [fullName, candidates] of discovered.entries()) {
     const [owner, name] = fullName.split('/');
-    return {
-      owner,
-      name,
-      path: item.path,
-      url: item.repository.html_url,
-    };
-  });
+    for (const candidate of candidates) {
+      items.push({ fullName, owner, name, path: candidate.path, url: candidate.repository.html_url });
+    }
+  }
 
   const batches: typeof items[] = [];
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
@@ -217,7 +225,7 @@ async function main(): Promise<void> {
   }
 
   const repos: RepoEntry[] = [];
-  let discarded = 0;
+  const resolvedRepos = new Set<string>();
 
   for (let i = 0; i < batches.length; i++) {
     process.stdout.write(`  Batch ${i + 1}/${batches.length}...\r`);
@@ -227,18 +235,20 @@ async function main(): Promise<void> {
       batchData = fetchBatch(batch);
     } catch (err) {
       console.error(`\nWarning: batch ${i + 1} failed: ${String(err)}`);
-      discarded += batch.length;
       continue;
     }
 
     for (let j = 0; j < batch.length; j++) {
       const item = batch[j];
+      if (resolvedRepos.has(item.fullName)) continue; // already resolved via a shorter path
+
       const entry = batchData[`r${j}`];
       const text = entry?.object?.text;
-      if (!text) { discarded++; continue; }
+      if (!text) continue; // no content for this path — try remaining candidates
       const parsed = parseMongodb(text);
-      if (!parsed) { discarded++; continue; }
+      if (!parsed) continue; // mongodb absent here — try remaining candidates
 
+      resolvedRepos.add(item.fullName);
       repos.push({
         owner: item.owner,
         name: item.name,
@@ -252,6 +262,8 @@ async function main(): Promise<void> {
     }
   }
   console.log(''); // end the \r progress line
+
+  const discarded = discovered.size - resolvedRepos.size;
 
   const date = new Date().toISOString().slice(0, 10);
   const __dirname = dirname(fileURLToPath(import.meta.url));

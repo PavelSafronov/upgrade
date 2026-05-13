@@ -33,6 +33,19 @@ describe('parseMongodb', () => {
   it('returns null for empty object', () => {
     expect(parseMongodb('{}')).toBeNull();
   });
+
+  it('returns version from peerDependencies', () => {
+    const pkg = JSON.stringify({ peerDependencies: { mongodb: '>=4.0.0' } });
+    expect(parseMongodb(pkg)).toEqual({ version: '>=4.0.0', depType: 'peerDependencies' });
+  });
+
+  it('prefers dependencies over peerDependencies when both present', () => {
+    const pkg = JSON.stringify({
+      dependencies: { mongodb: '^6.0.0' },
+      peerDependencies: { mongodb: '>=4.0.0' },
+    });
+    expect(parseMongodb(pkg)).toEqual({ version: '^6.0.0', depType: 'dependencies' });
+  });
 });
 
 describe('deriveMajorVersion', () => {

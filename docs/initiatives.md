@@ -65,7 +65,7 @@ Analyzed top 4 v6 repos from the landscape snapshot: `erxes/erxes`, `rubynor/big
 - **Ongoing landscape monitoring** — re-run `gh-search` periodically (monthly?), accumulate snapshots, track version distribution over time.
 - **Atlas in-product nudge** — "your app is connecting with driver v4.2; we can help you upgrade." Atlas already sees driver versions in connection metadata. Would need Atlas team buy-in; mentioned in `docs/strategy.md` §5.
 - ~~**Flow file support**~~ ✅ done — files with `// @flow` pragma are now parsed with `recast/parsers/flow` (Babel + flow plugin) instead of `tsx`. All existing transforms work correctly on Flow files (same Babel AST node types). Corpus regression fixture added (`test/corpus/parse-server/`).
-- **Expand `gh-search` coverage** — adding CJS patterns (`require('mongodb')`) and alternate filenames would surface repos the current approach misses.
+- ~~**Expand `gh-search` coverage**~~ ✅ done — added `peerDependencies` to `parseMongodb()` (surfaces library repos that peer-depend on mongodb); changed `discoverRepos()` to keep up to 3 candidate paths per repo so monorepo sub-packages are no longer dropped when the root `package.json` has no mongodb dep.
 - **GitHub Action wrapper** — wraps CLI, opens upgrade PR automatically; mentioned in `docs/strategy.md` §5.
 - **Mongoose cross-team conversation** — they may want to call our codemod primitives from their own upgrade tooling.
 - **Codemod for `GridFSBucketWriteStreamOptions` rename** — may have changed in v7; worth checking the changelog.
