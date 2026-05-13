@@ -1,6 +1,7 @@
 import type { Codemod } from '../types.js';
 import removeConnectionOptions from './remove-connection-options/transform.js';
 import bulkResultProps from './bulk-result-props/transform.js';
+import writeConcernOptions from './write-concern-options/transform.js';
 import {
   transformAddUser,
   transformCollectionStats,
@@ -60,6 +61,14 @@ export const v6Codemods: Codemod[] = [
     hop,
     packages: pkg,
     transform: transformWithTransaction,
+  },
+  {
+    id: 'write-concern-options',
+    description: 'Flag top-level write concern options (j, w, wtimeout) removed in v6',
+    kind: 'semantic',
+    hop,
+    packages: pkg,
+    transform: writeConcernOptions,
   },
   ...v6EnvChecks.map(e => ({
     ...e,
