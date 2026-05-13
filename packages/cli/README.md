@@ -105,7 +105,7 @@ import { buildReport, printReport } from '@pavel-safronov/upgrade/report';
 cd packages/cli
 npm install
 npm run build    # tsup: ESM + CJS + .d.ts
-npm test         # vitest: 95 tests across 16 test files
+npm test         # vitest: 97 tests across 16 test files
 npm run dev      # watch mode
 ```
 

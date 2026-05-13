@@ -7,8 +7,8 @@ Living document. Update as work progresses.
 ## 🔲 Todos (immediate)
 
 - [x] ~~Publish v0.1.8 with the two bug fixes committed since v0.1.7~~ ✅ done
-- [ ] **Implement v4→v5 codemods** — plan at `docs/superpowers/plans/2026-05-12-v4-to-v5-codemods.md`
-- [ ] **Implement v5→v6 codemods** — plan at `docs/superpowers/plans/2026-05-12-v5-to-v6-codemods.md`
+- [x] ~~Implement v4→v5 codemods~~ ✅ done — 8 codemods, 97 tests passing
+- [x] ~~Implement v5→v6 codemods~~ ✅ done — 10 codemods, wired into catalog
 - [ ] **Missed pattern mining** — grep the v6 repos in the landscape snapshot for patterns the CLI doesn't detect; cross-reference the v6→v7 changelog for coverage gaps (informs what to add before/during v4→v5 and v5→v6 work)
 - [ ] **ESLint plugin** — audit current state (`packages/eslint-plugin`), identify what's done vs. missing, bring to shippable state
 - [ ] **Landscape summary report** — small formatter over `tools/data/gh-search-*.json` showing version distribution, upgrade candidates, notable repos
@@ -27,15 +27,15 @@ Living document. Update as work progresses.
 ## 🚧 Planned features
 
 | Feature | Status | Notes |
-|---------|--------|-------|
+| --- | --- | --- |
 | v6→v7 codemod CLI | ✅ shipped | `@pavel-safronov/upgrade` on npm |
 | MCP server | ✅ shipped | `packages/mcp`; v0.1.7 added `upgrade-smoke-test` and `historical-upgrade-analysis` as named MCP prompts |
 | ESLint plugin | 🚧 in progress | `packages/eslint-plugin` |
 | GitHub ecosystem search tool | ✅ shipped | `tools/gh-search.ts`, outputs `tools/data/` |
 | Upgrade smoke-test skill | ✅ shipped | `docs/skills/upgrade-smoke-test.md`, installed locally at `~/.claude/skills/upgrade-smoke-test/` |
 | Historical upgrade analysis skill | ✅ shipped | `docs/skills/historical-upgrade-analysis.md`, installed locally; also exposed as MCP prompt |
-| v4→v5 codemods | 🔲 next | Plan at `docs/superpowers/plans/2026-05-12-v4-to-v5-codemods.md` |
-| v5→v6 codemods | 🔲 next | Plan at `docs/superpowers/plans/2026-05-12-v5-to-v6-codemods.md` |
+| v4→v5 codemods | ✅ shipped | 8 codemods — `objectid-rename`, `remove-v4-options`, `cursor-count`, `legacy-collection-methods`, `mapreduece-removed`, `callback-api`, + 2 env checks |
+| v5→v6 codemods | ✅ shipped | 10 codemods — `remove-connection-options-v6`, `bulk-result-props`, `bool-coerce`, `write-concern-options`, 4 semantic flags, + 2 env checks |
 
 ---
 
@@ -56,7 +56,7 @@ Living document. Update as work progresses.
 From `tools/data/gh-search-2026-05-13.json` (74 repos):
 
 | Version | Repos |
-|---------|-------|
+| --- | --- |
 | v2.x | 12 |
 | v3.x | 17 |
 | v4.x | 9 |
