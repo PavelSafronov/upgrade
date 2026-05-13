@@ -96,3 +96,71 @@ export function formatSummary(
 
   return lines.join('\n');
 }
+
+// ── Internal types ─────────────────────────────────────────────────────────
+
+type DiscoverItem = {
+  repository: { full_name: string; html_url: string; stargazers_count: number };
+  path: string;
+};
+
+type GqlBlobResult = Record<
+  string,
+  { object: { text: string } | null } | null
+>;
+
+// ── gh API helpers ─────────────────────────────────────────────────────────
+
+export function isGhAuthenticated(): boolean {
+  const result = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' });
+  return result.status === 0;
+}
+
+function ghApiJson<T>(args: string[]): T {
+  const result = spawnSync('gh', ['api', ...args], {
+    encoding: 'utf8',
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  if (result.status !== 0) throw new Error(result.stderr || 'gh api call failed');
+  return JSON.parse(result.stdout) as T;
+}
+
+// ── Phase 1: REST code search ──────────────────────────────────────────────
+
+export function discoverRepos(limit: number): Map<string, DiscoverItem> {
+  const repos = new Map<string, DiscoverItem>();
+  let page = 1;
+
+  while (repos.size < limit) {
+    const perPage = Math.min(100, limit - repos.size);
+    let data: { items: DiscoverItem[] };
+    try {
+      data = ghApiJson<{ items: DiscoverItem[] }>([
+        '--method', 'GET',
+        'search/code',
+        '-f', `q=filename:package.json "mongodb" NOT path:node_modules`,
+        '-f', `per_page=${perPage}`,
+        '-f', `page=${page}`,
+      ]);
+    } catch (err) {
+      console.error(`Warning: search page ${page} failed: ${String(err)}`);
+      break;
+    }
+
+    if (!data.items?.length) break;
+
+    for (const item of data.items) {
+      const key = item.repository.full_name;
+      const existing = repos.get(key);
+      // prefer the package.json closest to the repo root (shortest path)
+      if (!existing || item.path.length < existing.path.length) {
+        repos.set(key, item);
+      }
+    }
+
+    if (data.items.length < perPage) break; // reached the last page
+    page++;
+  }
+
+  return repos;
+}
