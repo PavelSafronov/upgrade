@@ -1,6 +1,6 @@
 {
   "name": "@pavel-safronov/upgrade",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Deterministic codemod CLI for upgrading the MongoDB Node.js driver",
   "repository": {
     "type": "git",
