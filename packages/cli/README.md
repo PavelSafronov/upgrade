@@ -105,7 +105,7 @@ import { buildReport, printReport } from '@pavel-safronov/upgrade/report';
 cd packages/cli
 npm install
 npm run build    # tsup: ESM + CJS + .d.ts
-npm test         # vitest: 97 tests across 16 test files
+npm test         # vitest: 99 tests across 18 test files
 npm run dev      # watch mode
 ```
 
@@ -122,3 +122,4 @@ npm run dev      # watch mode
 - `src/*.test.ts` — unit tests for detect, plan, runner
 - `src/catalog/v*/*/transform.test.ts` — per-codemod fixture tests
 - `src/integration.test.ts` — end-to-end tests against `packages/test-app-v4`, `v5`, `v6`
+- `src/corpus.test.ts` — regression guard: dry-run against real-world corpus fixtures and compare against committed snapshots. Corpus fixtures live in `test/corpus/` (minimal excerpts from `Automattic/mongoose` and `loopbackio/loopback-connector-mongodb`). Update snapshots with `vitest --update-snapshots` when intentionally changing behavior.

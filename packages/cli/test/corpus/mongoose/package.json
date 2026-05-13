@@ -1,0 +1,12 @@
+{
+  "name": "mongoose",
+  "description": "Corpus fixture from Automattic/mongoose@fae374b1 (last commit before mongodb v7 upgrade)",
+  "version": "8.8.3",
+  "dependencies": {
+    "mongodb": "~6.20.0",
+    "bson": "^6.10.4"
+  },
+  "engines": {
+    "node": ">=16.20.1"
+  }
+}

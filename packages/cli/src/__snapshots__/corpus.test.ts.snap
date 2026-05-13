@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`corpus regression guard > loopback-connector-mongodb (v5 → v7, two-hop): dry-run output matches snapshot 1`] = `
+[
+  {
+    "codemod": "findoneand-metadata",
+    "file": "lib/mongodb.js",
+    "status": "flagged",
+  },
+  {
+    "codemod": "mongodb-dep-bump",
+    "file": "package.json",
+    "status": "flagged",
+  },
+  {
+    "codemod": "mongodb-dep-bump-v6",
+    "file": "package.json",
+    "status": "flagged",
+  },
+]
+`;
+
+exports[`corpus regression guard > mongoose (v6 → v7): dry-run output matches snapshot 1`] = `
+[
+  {
+    "codemod": "bson-dep-bump",
+    "file": "package.json",
+    "status": "flagged",
+  },
+  {
+    "codemod": "cursor-implicit-batch-size",
+    "file": "test/aggregate.test.js",
+    "status": "flagged",
+  },
+  {
+    "codemod": "mongodb-dep-bump",
+    "file": "package.json",
+    "status": "flagged",
+  },
+  {
+    "codemod": "node-version",
+    "file": "package.json",
+    "status": "flagged",
+  },
+]
+`;

@@ -1,0 +1,12 @@
+{
+  "name": "loopback-connector-mongodb",
+  "description": "Corpus fixture from loopbackio/loopback-connector-mongodb HEAD (2026-05-13)",
+  "version": "7.0.5",
+  "dependencies": {
+    "mongodb": "^5.9.2",
+    "bson": "^7.2.0"
+  },
+  "engines": {
+    "node": "20 || 22 || 24"
+  }
+}

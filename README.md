@@ -64,7 +64,7 @@ See [packages/mcp/README.md](packages/mcp/README.md) for full tool schemas.
 ```bash
 npm install          # install all workspace dependencies
 npm run build        # build both packages (tsup)
-npm test             # run all tests (vitest, 149 tests across all packages)
+npm test             # run all tests (vitest, 151 tests across all packages)
 ```
 
 ### Testing the CLI manually
@@ -104,7 +104,7 @@ npx @modelcontextprotocol/inspector node packages/mcp/dist/index.js
 
 ```bash
 cd packages/cli
-npm test                              # all 97 tests
+npm test                              # all 99 tests
 npm test -- stream-transform          # just one transform
 npm test -- integration               # integration tests against test-app-v4/v5/v6
 ```

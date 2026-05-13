@@ -12,7 +12,7 @@ Living document. Update as work progresses.
 - [x] ~~**Missed pattern mining**~~ ✅ done — see findings below
 - [x] ~~**ESLint plugin**~~ ✅ done — 17 rules (v4→v5→v6→v7), all tests passing, published as v0.1.8
 - [ ] **Landscape summary report** — small formatter over `tools/data/gh-search-*.json` showing version distribution, upgrade candidates, notable repos
-- [ ] **CI regression guard** — run smoke tests against a fixed corpus on each CLI release
+- [x] ~~**CI regression guard**~~ ✅ done — corpus snapshot tests in `packages/cli/src/corpus.test.ts`; runs on every push via existing CI workflow
 
 ---
 
