@@ -1,6 +1,7 @@
 import type { Rule } from 'eslint';
 import noObjectid from './v5/no-objectid.js';
 import noV4Options from './v5/no-v4-options.js';
+import noCursorCount from './v5/no-cursor-count.js';
 import noV6ConnectionOptions from './v6/no-v6-connection-options.js';
 import noBulkResultProps from './v6/no-bulk-result-props.js';
 import noBetaNamespace from './v7/no-beta-namespace.js';
@@ -16,6 +17,7 @@ import noDeprecatedPropertyAccess from './v7/no-deprecated-property-access.js';
 export const rules: Record<string, Rule.RuleModule> = {
   'no-objectid': noObjectid,
   'no-v4-options': noV4Options,
+  'no-cursor-count': noCursorCount,
   'no-v6-connection-options': noV6ConnectionOptions,
   'no-bulk-result-props': noBulkResultProps,
   'no-beta-namespace': noBetaNamespace,

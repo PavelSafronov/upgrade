@@ -1,6 +1,7 @@
 import type { Codemod } from '../types.js';
 import objectidRename from './objectid-rename/transform.js';
 import removeV4Options from './remove-v4-options/transform.js';
+import cursorCount from './cursor-count/transform.js';
 import {
   transformLegacyMethods,
   transformMapReduce,
@@ -51,6 +52,14 @@ export const v5Codemods: Codemod[] = [
     hop,
     packages: pkg,
     transform: transformCallbackApi,
+  },
+  {
+    id: 'cursor-count',
+    description: 'Flag cursor.count() removed in v5 (use countDocuments or estimatedDocumentCount)',
+    kind: 'semantic',
+    hop,
+    packages: pkg,
+    transform: cursorCount,
   },
   ...v5EnvChecks.map(e => ({
     ...e,
