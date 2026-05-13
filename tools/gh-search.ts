@@ -57,6 +57,7 @@ export function buildGraphQLQuery(
     .map(
       (r, i) =>
         `r${i}: repository(owner: "${r.owner}", name: "${r.name}") { ` +
+        `stargazerCount ` +
         `object(expression: "HEAD:${r.path}") { ... on Blob { text } } }`
     )
     .join('\n  ');
@@ -106,7 +107,7 @@ type DiscoverItem = {
 
 type GqlBlobResult = Record<
   string,
-  { object: { text: string } | null } | null
+  { stargazerCount: number; object: { text: string } | null } | null
 >;
 
 // ── gh API helpers ─────────────────────────────────────────────────────────
@@ -150,6 +151,8 @@ export function discoverRepos(limit: number): Map<string, DiscoverItem> {
     if (!data.items?.length) break;
 
     for (const item of data.items) {
+      // skip backup files like package.json.bak, package.json~ etc.
+      if (item.path.split('/').pop() !== 'package.json') continue;
       const key = item.repository.full_name;
       const existing = repos.get(key);
       // prefer the package.json closest to the repo root (shortest path)
@@ -204,7 +207,6 @@ async function main(): Promise<void> {
       owner,
       name,
       path: item.path,
-      stars: item.repository.stargazers_count,
       url: item.repository.html_url,
     };
   });
@@ -231,7 +233,8 @@ async function main(): Promise<void> {
 
     for (let j = 0; j < batch.length; j++) {
       const item = batch[j];
-      const text = batchData[`r${j}`]?.object?.text;
+      const entry = batchData[`r${j}`];
+      const text = entry?.object?.text;
       if (!text) { discarded++; continue; }
       const parsed = parseMongodb(text);
       if (!parsed) { discarded++; continue; }
@@ -239,7 +242,7 @@ async function main(): Promise<void> {
       repos.push({
         owner: item.owner,
         name: item.name,
-        stars: item.stars,
+        stars: entry?.stargazerCount ?? 0,
         mongodbVersion: parsed.version,
         majorVersion: deriveMajorVersion(parsed.version),
         depType: parsed.depType,

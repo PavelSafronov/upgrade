@@ -57,6 +57,7 @@ describe('buildGraphQLQuery', () => {
     expect(query).toContain('expression: "HEAD:package.json"');
     expect(query).toContain('expression: "HEAD:frontend/package.json"');
     expect(query).toContain('... on Blob { text }');
+    expect(query).toContain('stargazerCount');
   });
 
   it('wraps output in braces', () => {
