@@ -136,3 +136,6 @@ Present findings in this exact structure:
 - If *all* transforms produce zero hits, check that the source files actually `import from 'mongodb'` — the CLI guards on this
 - Pay attention to file paths: `lib/scripts/*.js` are often browser-side bundles that don't import from mongodb even if the project does elsewhere
 - The upgrade report JSON is saved to `upgrade-report.json` in the repo root — read it for structured data if the CLI output is hard to parse
+- **Monorepo repos:** The CLI requires a `mongodb` dep in the target's `package.json`. If the root has none, find and target the sub-package directly. Look for `"mongodb":` in sub-package `package.json` files.
+- **Flow files:** Repos using Flow type annotations (files starting with `// @flow`) will be skipped with a parse-error warning — our parser is `tsx` and can't handle Flow syntax (e.g. `?Array<any>`). When a key file (like a storage adapter) is Flow-annotated, use grep (Step 6) to check for missed patterns — that's the only signal available for those files.
+- **Historical analysis repos** (already on v7): Find the upgrade commit with `git log -p -- package.json | grep -B10 '"mongodb":.*7\.'`, then `git checkout <pre-upgrade-commit> -- .` before running the CLI.
