@@ -159,6 +159,18 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
   | node packages/mcp/dist/index.js
 ```
 
+## Roadmap
+
+### MCP Prompts (planned)
+
+The MCP protocol supports a `prompts` resource type alongside `tools`. The plan is to expose the upgrade skill documents (currently in `docs/skills/`) as named MCP prompts so that any MCP-connected agent automatically gets them without manual installation.
+
+When implemented, a Claude Code user with the MCP server configured will be able to invoke:
+
+- `upgrade-smoke-test` — the structured workflow for testing the CLI against a real repo (classify true/false positives, check for missed items, report findings)
+
+This means skills ship with the npm package and require zero setup beyond the existing MCP wiring. Tracked as a near-term addition.
+
 ## Development
 
 ```bash
