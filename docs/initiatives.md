@@ -39,9 +39,9 @@ Analyzed top 4 v6 repos from the landscape snapshot: `erxes/erxes`, `rubynor/big
 
 ## 🧪 Smoke tests (after the above)
 
-- [ ] Write formal smoke test reports for `robvanderleek/create-issue-branch` and `ayaka-notes/overleaf-pro` — both tested informally, bugs found, no reports written
-- [ ] Smoke test `erxes/erxes` (★3978, `^6.18.0`) — highest-star v6 repo, best bug surface
-- [ ] Smoke test `rubynor/bigfive-web` (★867) and `haohanyang/mongodb-datasource` (★154)
+- [x] ~~Write formal smoke test reports for `robvanderleek/create-issue-branch` and `ayaka-notes/overleaf-pro`~~ ✅ done — formal reports written post-fix
+- [x] ~~Smoke test `erxes/erxes` (★3978, `^6.18.0`)`~~ ✅ done — 2 env checks, 0 transforms (Mongoose-driven, correct)
+- [x] ~~Smoke test `rubynor/bigfive-web` (★867) and `haohanyang/mongodb-datasource` (★154)~~ ✅ done — env checks only, correct
 
 ---
 
@@ -98,5 +98,8 @@ Top v6 repos (upgrade targets): `erxes/erxes` (★3978), `rubynor/bigfive-web` (
 | `loopbackio/loopback-connector-mongodb` | `^5.9.2` (v5→v7 two-hop) | ✅ 1 true positive, 2 correct env checks | [report](smoke-tests/loopbackio-loopback-connector-mongodb.md) |
 | `Automattic/mongoose` | `~6.20.0` | ✅ 4/4 true positives, 0 missed | [report](smoke-tests/automattic-mongoose.md) |
 | `nodkz/mongodb-memory-server` | `^6.9.0` (monorepo core) | ✅ 0 transforms + 1 dep bump, matches actual upgrade exactly | [report](smoke-tests/nodkz-mongodb-memory-server.md) |
-| `robvanderleek/create-issue-branch` | — | ⚠️ informal only — found bundle hang bug (issue #4) | no report |
-| `ayaka-notes/overleaf-pro` | — | ⚠️ informal only — found gridfs false positive (issue #5) | no report |
+| `erxes/erxes` | `^6.18.0` | ✅ 2 env checks, 0 transforms (Mongoose-driven app, correct) | [report](smoke-tests/erxes-erxes.md) |
+| `rubynor/bigfive-web` | `6.5.0` | ✅ 2 env checks, 0 transforms | [report](smoke-tests/rubynor-bigfive-web.md) |
+| `haohanyang/mongodb-datasource` | `^6.9.0` | ✅ 2 env checks in devDependencies, 0 transforms | [report](smoke-tests/haohanyang-mongodb-datasource.md) |
+| `robvanderleek/create-issue-branch` | `^6.20.0` | ✅ 1 env check, node-version correctly skipped (>=22.x), 0 transforms | [report](smoke-tests/robvanderleek-create-issue-branch.md) |
+| `ayaka-notes/overleaf-pro` | `6.12.0` (monorepo, 4 sub-packages) | ✅ 2 env checks per sub-package, 0 transforms; gridfs false positive confirmed fixed | [report](smoke-tests/ayaka-notes-overleaf-pro.md) |
