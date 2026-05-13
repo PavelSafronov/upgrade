@@ -44,3 +44,18 @@ exports[`corpus regression guard > mongoose (v6 → v7): dry-run output matches 
   },
 ]
 `;
+
+exports[`corpus regression guard > parse-server (v6, Flow files): dry-run output matches snapshot 1`] = `
+[
+  {
+    "codemod": "cursor-implicit-batch-size",
+    "file": "src/MongoStorageAdapter.js",
+    "status": "flagged",
+  },
+  {
+    "codemod": "mongodb-dep-bump",
+    "file": "package.json",
+    "status": "flagged",
+  },
+]
+`;

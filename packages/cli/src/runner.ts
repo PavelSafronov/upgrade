@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { createRequire } from 'node:module';
 import { glob } from 'glob';
 import jscodeshift, { type API } from 'jscodeshift';
 import type { Codemod, EnvCheckResult } from './catalog/types.js';
@@ -16,7 +17,16 @@ export interface RunOptions {
   dryRun: boolean;
 }
 
+const _require = createRequire(import.meta.url);
+
 const j = jscodeshift.withParser('tsx');
+// Flow files need Babel's flow plugin (via recast/parsers/flow) so the AST node
+// types (ObjectProperty, etc.) stay consistent with the tsx parser.
+const jFlow = jscodeshift.withParser(_require('recast/parsers/flow'));
+
+function isFlowFile(source: string): boolean {
+  return source.slice(0, 500).includes('@flow');
+}
 
 export async function runCodemods(
   codemods: Codemod[],
@@ -51,7 +61,8 @@ export async function runCodemods(
       const absPath = join(cwd, relPath);
       const source = readFileSync(absPath, 'utf8');
 
-      const fakeApi = { jscodeshift: j, j, stats: () => {}, report: () => {} } as unknown as API;
+      const activeJ = isFlowFile(source) ? jFlow : j;
+      const fakeApi = { jscodeshift: activeJ, j: activeJ, stats: () => {}, report: () => {} } as unknown as API;
       let result: string | null | undefined;
       try {
         result = codemod.transform!(

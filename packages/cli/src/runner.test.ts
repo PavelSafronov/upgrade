@@ -48,6 +48,40 @@ describe('runCodemods', () => {
     expect(readFileSync(join(tmp, 'app.ts'), 'utf8')).toBe(`const x = 'old';`);
   });
 
+  it('transforms a Flow-annotated file using the flow parser', async () => {
+    // ?string is Flow nullable syntax — the tsx parser rejects it.
+    // If the file were processed with tsx, the parse error would skip it and
+    // produce no changes. Success here proves the flow parser path is taken.
+    writeFileSync(join(tmp, 'adapter.js'), [
+      '// @flow',
+      'type Opts = ?string;',
+      'var oldName = 1;',
+    ].join('\n'));
+
+    const codemod: Codemod = {
+      id: 'flow-rename-test',
+      description: 'rename oldName → newName via jscodeshift (requires flow parser)',
+      kind: 'mechanical',
+      hop: { from: '6.x', to: '7.x' },
+      packages: ['mongodb'],
+      transform: (file, api) => {
+        const j = api.jscodeshift;
+        const root = j(file.source);
+        let dirty = false;
+        root.find(j.Identifier, { name: 'oldName' }).forEach((path: any) => {
+          path.node.name = 'newName';
+          dirty = true;
+        });
+        return dirty ? root.toSource() : undefined;
+      },
+    };
+
+    const changes = await runCodemods([codemod], tmp, { dryRun: false });
+    expect(changes).toHaveLength(1);
+    expect(changes[0]).toMatchObject({ codemod: 'flow-rename-test', status: 'applied' });
+    expect(readFileSync(join(tmp, 'adapter.js'), 'utf8')).toContain('newName');
+  });
+
   it('skips files in node_modules', async () => {
     mkdirSync(join(tmp, 'node_modules'), { recursive: true });
     writeFileSync(join(tmp, 'node_modules', 'app.ts'), `const x = 'old';`);

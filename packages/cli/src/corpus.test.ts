@@ -44,4 +44,9 @@ describe('corpus regression guard', () => {
     const result = await dryRunCorpus('loopback-connector-mongodb');
     expect(result).toMatchSnapshot();
   });
+
+  it('parse-server (v6, Flow files): dry-run output matches snapshot', async () => {
+    const result = await dryRunCorpus('parse-server');
+    expect(result).toMatchSnapshot();
+  });
 });

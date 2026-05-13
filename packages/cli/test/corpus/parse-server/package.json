@@ -1,0 +1,8 @@
+{
+  "name": "parse-server",
+  "version": "6.5.0",
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": {
+    "mongodb": "6.20.0"
+  }
+}

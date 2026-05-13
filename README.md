@@ -64,7 +64,7 @@ See [packages/mcp/README.md](packages/mcp/README.md) for full tool schemas.
 ```bash
 npm install          # install all workspace dependencies
 npm run build        # build both packages (tsup)
-npm test             # run all tests (vitest, 151 tests across all packages)
+npm test             # run all tests (vitest, 153 tests across all packages)
 ```
 
 ### Testing the CLI manually

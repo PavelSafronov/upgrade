@@ -77,6 +77,8 @@ After the crash fix, the same file was warned once per codemod (19 files × 14 c
 
 ## Why 19 files fail to parse: Flow type annotations
 
+> **Update (2026-05-13):** Flow file support has been implemented. Files with a `// @flow` pragma are now parsed with `recast/parsers/flow` (Babel + flow plugin) instead of the `tsx` parser. Re-running against a fresh clone would no longer produce these skip warnings. The analysis below is preserved as historical record of the original finding.
+
 parse-server uses **Flow** (not TypeScript) for type annotations in JavaScript files. All files begin with `// @flow` and use Flow-specific syntax:
 
 ```js
@@ -86,7 +88,7 @@ import type { QueryOptions, QueryType, SchemaType, StorageClass } from '../Stora
 _logClientEvents: ?Array<any>;  // Flow nullable type
 ```
 
-Our jscodeshift parser is configured as `tsx` (TypeScript + JSX). It cannot parse Flow's `?Array<any>` nullable syntax or `import type` in Flow's specific encoding.
+Our jscodeshift parser was configured as `tsx` (TypeScript + JSX). It cannot parse Flow's `?Array<any>` nullable syntax or `import type` in Flow's specific encoding.
 
 **Critically, all of the MongoDB-consuming files are Flow files:**
 - `MongoStorageAdapter.js` — main driver consumer
@@ -94,7 +96,7 @@ Our jscodeshift parser is configured as `tsx` (TypeScript + JSX). It cannot pars
 - `DatabaseController.js` — query layer
 - `PostgresStorageAdapter.js` — (unrelated, but same issue)
 
-This means we cannot verify whether our codemods would produce false positives or true positives on parse-server's actual MongoDB usage. The grep check (below) provides indirect confidence.
+This means we could not verify at the time whether our codemods would produce false positives or true positives on parse-server's actual MongoDB usage. The grep check (below) provides indirect confidence.
 
 ---
 
@@ -116,7 +118,7 @@ Zero hits — consistent with the zero-diff upgrade. parse-server was already v7
 
 ## Verdict
 
-**Correct result, but limited visibility.** Our CLI correctly produces zero source transforms on a codebase that needed zero source changes. However, we cannot fully verify the codemods because all MongoDB-touching files are Flow files that we skip.
+**Correct result.** Our CLI correctly produces zero source transforms on a codebase that needed zero source changes. The zero result is now fully verified — after Flow file support was added, the MongoDB adapter files (which are Flow-annotated) parse correctly and produce no transform hits, consistent with the Dependabot-only actual upgrade.
 
 ---
 
@@ -126,13 +128,13 @@ Zero hits — consistent with the zero-diff upgrade. parse-server was already v7
 |---|---|---|
 | CLI crashes on first parse error | Critical bug — fixed in this session | Done |
 | Parse error warning repeated per codemod | UX — noisy output — fixed in this session | Done |
-| Flow type annotations incompatible with `tsx` parser | Coverage gap — 19 files skipped including all MongoDB adapters | Consider adding `@babel/plugin-syntax-flow` as a fallback parser when `tsx` fails |
+| Flow type annotations incompatible with `tsx` parser | Coverage gap — 19 files skipped including all MongoDB adapters | ✅ Fixed — Flow files now parsed with `recast/parsers/flow` (Babel + flow plugin) |
 | Upgrade was Dependabot-only (no source changes) | Positive signal — CLI is correct | No action; confirms result |
 
 ---
 
 ## Notes
 
-- parse-server uses `require('mongodb')` (not ESM) inside the Flow files, so the import guard would pass if we could parse them
+- parse-server uses `require('mongodb')` (not ESM) inside the Flow files — the import guard passes correctly now that Flow files are parsed
 - The project is actively maintained and likely to keep mongodb pinned to latest; useful for regression checks over time
-- A follow-up: try the Flow babel plugin on these files to determine if our codemods would have produced any hits on the actual MongoDB adapter code
+- A corpus regression fixture (`test/corpus/parse-server/`) verifies that Flow files are parsed and transforms run correctly on Flow syntax
