@@ -1,6 +1,6 @@
 {
   "name": "@pavel-safronov/upgrade-mcp",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "MCP server exposing MongoDB driver upgrade tools to AI agents",
   "repository": {
     "type": "git",
