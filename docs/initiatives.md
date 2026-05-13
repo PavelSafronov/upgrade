@@ -11,7 +11,7 @@ Living document. Update as work progresses.
 - [x] ~~Implement v5→v6 codemods~~ ✅ done — 10 codemods, wired into catalog
 - [x] ~~**Missed pattern mining**~~ ✅ done — see findings below
 - [x] ~~**ESLint plugin**~~ ✅ done — 17 rules (v4→v5→v6→v7), all tests passing, published as v0.1.8
-- [ ] **Landscape summary report** — small formatter over `tools/data/gh-search-*.json` showing version distribution, upgrade candidates, notable repos
+- [x] ~~**Landscape summary report**~~ ✅ done — `tools/landscape.ts`, run via `npm run landscape`
 - [x] ~~**CI regression guard**~~ ✅ done — corpus snapshot tests in `packages/cli/src/corpus.test.ts`; runs on every push via existing CI workflow
 
 ---

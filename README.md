@@ -152,6 +152,34 @@ interface RepoEntry {
 }
 ```
 
+### Landscape summary report
+
+`tools/landscape.ts` reads existing snapshots from `tools/data/` and renders a rich report: version distribution with star counts, upgrade candidates, and top repos per version. No network calls — reads locally cached snapshots only.
+
+```bash
+npm run landscape                              # latest snapshot, top 5 per version
+npx tsx tools/landscape.ts --top 10           # show top 10 repos per version
+npx tsx tools/landscape.ts --version 6        # only show v6.x repos
+npx tsx tools/landscape.ts --all              # all snapshots + cross-snapshot delta
+```
+
+Example output:
+
+```text
+MongoDB driver ecosystem — 2026-05-13
+────────────────────────────────────────────────────────────
+
+Version distribution (with total stars):
+  v4.x      9 repos   ███████░░░░░░░░░░░░░░░░░   4,043★
+  v5.x      6 repos   █████░░░░░░░░░░░░░░░░░░░     109★
+  v6.x     29 repos   ████████████████████████   5,923★
+
+Upgrade candidates (v4–v6, sorted by stars):
+    3978★  erxes/erxes                          mongodb@^6.18.0
+    3581★  msgbyte/tailchat                     mongodb@4.2.1
+     867★  rubynor/bigfive-web                  mongodb@6.5.0
+```
+
 ## Repository layout
 
 ```text
@@ -165,6 +193,7 @@ packages/
   test-app-v4.2/   same patterns as test-app-v4, pinned to mongodb@4.2.0 (earliest v4)
 tools/
   gh-search.ts     GitHub ecosystem search — finds repos using the MongoDB driver
+  landscape.ts     Landscape summary report — reads snapshots, renders version distribution + upgrade candidates
   gh-search.test.ts
   data/            snapshot JSON files from past runs
 docs/

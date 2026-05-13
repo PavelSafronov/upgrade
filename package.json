@@ -13,6 +13,7 @@
     "test:integration": "npm run test:integration -w packages/cli",
     "update-snapshots": "npm run update-snapshots -w packages/cli",
     "clean": "rm -rf packages/cli/dist packages/mcp/dist packages/eslint-plugin/dist",
+    "landscape": "npx tsx tools/landscape.ts",
     "bump": "npm version --include-workspace-root -w packages/cli -w packages/mcp -w packages/eslint-plugin",
     "release": "npm publish --access public -w packages/cli -w packages/mcp -w packages/eslint-plugin"
   }
