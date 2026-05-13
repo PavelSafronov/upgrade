@@ -41,6 +41,10 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
+    "test:corpus": "vitest run corpus",
+    "test:integration": "vitest run integration",
+    "update-snapshots": "vitest run -u",
+    "typecheck": "tsc --noEmit --project tsconfig.check.json",
     "dev": "tsup --watch"
   },
   "dependencies": {

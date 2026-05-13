@@ -43,7 +43,7 @@ export default function transform(file: FileInfo, api: API): string | undefined 
             j.callExpression(path.node.callee as MemberExpression, streamArgs),
             j.identifier('map')
           ),
-          [transformProp.value as Expression]
+          [transformProp.value] as any[]
         )
       );
       dirty = true;

@@ -16,7 +16,10 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
