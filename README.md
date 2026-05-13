@@ -64,7 +64,7 @@ See [packages/mcp/README.md](packages/mcp/README.md) for full tool schemas.
 ```bash
 npm install          # install all workspace dependencies
 npm run build        # build both packages (tsup)
-npm test             # run all tests (vitest, 122 tests across all packages)
+npm test             # run all tests (vitest, 149 tests across all packages)
 ```
 
 ### Testing the CLI manually
@@ -104,9 +104,52 @@ npx @modelcontextprotocol/inspector node packages/mcp/dist/index.js
 
 ```bash
 cd packages/cli
-npm test                              # all 95 tests
+npm test                              # all 97 tests
 npm test -- stream-transform          # just one transform
 npm test -- integration               # integration tests against test-app-v4/v5/v6
+```
+
+### GitHub ecosystem search
+
+`tools/gh-search.ts` searches GitHub for public repos that depend on the MongoDB Node.js driver and snapshots their version distribution. Useful for finding upgrade candidates and measuring ecosystem progress.
+
+**Prerequisites:** [`gh` CLI](https://cli.github.com/) installed and authenticated (`gh auth login`).
+
+```bash
+# Run from the repo root (requires tsx):
+npx tsx tools/gh-search.ts
+
+# Limit the number of repos fetched (default: 300):
+npx tsx tools/gh-search.ts --limit 100
+```
+
+Output is written to `tools/data/gh-search-YYYY-MM-DD.json` and a bar chart summary is printed to stdout:
+
+```text
+MongoDB driver ecosystem snapshot — 2026-05-13
+──────────────────────────────────────────────────
+  v2.x     12 repos   ████░░░░░░░░░░░░░░░░
+  v3.x     17 repos   ██████████████░░░░░░
+  v4.x      9 repos   ███████░░░░░░░░░░░░░
+  v5.x      6 repos   █████░░░░░░░░░░░░░░░
+  v6.x     29 repos   ████████████████████
+──────────────────────────────────────────────────
+  Total: 74 repos  (300 query limit, 12 discarded)
+```
+
+The JSON output is an array of `RepoEntry` objects:
+
+```typescript
+interface RepoEntry {
+  owner: string;           // GitHub org/user
+  name: string;            // repo name
+  stars: number;
+  mongodbVersion: string;  // raw version string from package.json, e.g. "^6.18.0"
+  majorVersion: number;    // parsed major, e.g. 6
+  depType: 'dependencies' | 'devDependencies';
+  packageJsonPath: string; // path within the repo
+  url: string;             // GitHub URL
+}
 ```
 
 ## Repository layout
@@ -115,15 +158,22 @@ npm test -- integration               # integration tests against test-app-v4/v5
 packages/
   cli/             @pavel-safronov/upgrade — CLI and all codemod logic
   mcp/             @pavel-safronov/upgrade-mcp — MCP server (thin layer over CLI)
-  eslint-plugin/   @pavel-safronov/eslint-plugin-mongodb-upgrade — 13 ESLint rules
+  eslint-plugin/   @pavel-safronov/eslint-plugin-mongodb-upgrade — ESLint rules
   test-app-v6/     kitchen-sink app with every deprecated v6 API (6.x→7.x demo target)
   test-app-v5/     kitchen-sink app with every deprecated v5 API (5.x→6.x demo target)
   test-app-v4/     kitchen-sink app with every deprecated v4 API (4.x→5.x demo target)
   test-app-v4.2/   same patterns as test-app-v4, pinned to mongodb@4.2.0 (earliest v4)
+tools/
+  gh-search.ts     GitHub ecosystem search — finds repos using the MongoDB driver
+  gh-search.test.ts
+  data/            snapshot JSON files from past runs
 docs/
   specs/           design documents
   plans/           implementation plans
+  smoke-tests/     per-repo smoke test reports
+  skills/          Claude skill definitions (upgrade-smoke-test, historical-upgrade-analysis)
   decisions.md     timestamped decision log
+  initiatives.md   living tracker of work in progress and planned features
 ```
 
 ## Docs
