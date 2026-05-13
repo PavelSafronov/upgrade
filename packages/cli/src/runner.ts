@@ -25,7 +25,17 @@ export async function runCodemods(
 ): Promise<Change[]> {
   const files = await glob('**/*.{ts,tsx,js,jsx,mjs,cjs}', {
     cwd,
-    ignore: ['node_modules/**', 'dist/**', '*.d.ts'],
+    ignore: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      'out/**',
+      '.next/**',
+      'coverage/**',
+      '*-dist/**',
+      '*.min.js',
+      '*.d.ts',
+    ],
     absolute: false,
   });
 
