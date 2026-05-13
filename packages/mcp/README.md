@@ -53,11 +53,13 @@ Add the same block to your MCP config file (`.cursor/mcp.json` or `.windsurf/mcp
 Scans a project and returns the current mongodb version, the planned upgrade hops, the applicable codemods, and a per-file breakdown of what would be changed — **without writing any files**.
 
 **Input:**
+
 ```json
 { "path": "/absolute/path/to/project" }
 ```
 
 **Output:**
+
 ```json
 {
   "package": "mongodb",
@@ -80,6 +82,7 @@ Scans a project and returns the current mongodb version, the planned upgrade hop
 Applies a named codemod — or all applicable codemods — to a project. Supports dry-run mode.
 
 **Input:**
+
 ```json
 {
   "path": "/absolute/path/to/project",
@@ -89,6 +92,7 @@ Applies a named codemod — or all applicable codemods — to a project. Support
 ```
 
 **Output:**
+
 ```json
 {
   "dryRun": false,
@@ -100,6 +104,7 @@ Applies a named codemod — or all applicable codemods — to a project. Support
 ```
 
 `status` is one of:
+
 - `"applied"` — file was modified (mechanical transform or env check with `autoFixed`)
 - `"flagged"` — TODO comment inserted (semantic), or env check that needs manual action
 - `"nothing-to-do"` — transform ran but no matches found
@@ -111,11 +116,13 @@ Applies a named codemod — or all applicable codemods — to a project. Support
 Returns a human-readable explanation with before/after code and migration notes for any codemod ID.
 
 **Input:**
+
 ```json
 { "id": "stream-transform" }
 ```
 
 **Output:**
+
 ```json
 {
   "id": "stream-transform",
@@ -131,7 +138,7 @@ Returns a human-readable explanation with before/after code and migration notes 
 
 ## Typical agent workflow
 
-```
+```text
 Agent: analyze_repo({ path: "/my/project" })
   → finds mongodb@6.20.0, 12 files affected
 
@@ -159,17 +166,24 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
   | node packages/mcp/dist/index.js
 ```
 
-## Roadmap
+## Prompts
 
-### MCP Prompts (planned)
+The server also exposes named MCP prompts — structured workflows that agents can invoke by name. Any MCP-connected agent gets these automatically without any extra setup.
 
-The MCP protocol supports a `prompts` resource type alongside `tools`. The plan is to expose the upgrade skill documents (currently in `docs/skills/`) as named MCP prompts so that any MCP-connected agent automatically gets them without manual installation.
+### `upgrade-smoke-test`
 
-When implemented, a Claude Code user with the MCP server configured will be able to invoke:
+A step-by-step workflow for testing the CLI against a real GitHub repo: clone, dry-run, classify each transform as true/false positive, grep for missed items, report findings.
 
-- `upgrade-smoke-test` — the structured workflow for testing the CLI against a real repo (classify true/false positives, check for missed items, report findings)
+### `historical-upgrade-analysis`
 
-This means skills ship with the npm package and require zero setup beyond the existing MCP wiring. Tracked as a near-term addition.
+A workflow for repos already on v7+: finds the upgrade commit in git history, checks out the pre-upgrade state, runs the CLI, and compares its predictions against what the developer actually changed. The developer's actual diff is the ground truth for classification.
+
+Prompts are invoked via `prompts/get` in the MCP protocol. In Claude Code:
+
+```text
+/mcp mongodb-upgrade upgrade-smoke-test
+/mcp mongodb-upgrade historical-upgrade-analysis
+```
 
 ## Development
 

@@ -1,13 +1,14 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, GetPromptRequestSchema, ListPromptsRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { analyzeRepo } from './tools/analyze-repo.js';
 import { applyCodemod } from './tools/apply-codemod.js';
 import { explainBreakingChange } from './tools/explain-breaking-change.js';
+import { PROMPTS } from './prompts.js';
 
 const server = new Server(
   { name: 'mongodb-upgrade', version: '0.1.0' },
-  { capabilities: { tools: {} } }
+  { capabilities: { tools: {}, prompts: {} } }
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -50,6 +51,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
   ],
 }));
+
+server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+  prompts: PROMPTS.map(p => ({ name: p.name, description: p.description })),
+}));
+
+server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+  const { name } = request.params;
+  const prompt = PROMPTS.find(p => p.name === name);
+  if (!prompt) throw new Error(`Unknown prompt: ${name}`);
+  return {
+    description: prompt.description,
+    messages: [{ role: 'user' as const, content: { type: 'text' as const, text: prompt.content } }],
+  };
+});
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
