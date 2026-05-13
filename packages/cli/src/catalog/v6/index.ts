@@ -2,6 +2,7 @@ import type { Codemod } from '../types.js';
 import removeConnectionOptions from './remove-connection-options/transform.js';
 import bulkResultProps from './bulk-result-props/transform.js';
 import writeConcernOptions from './write-concern-options/transform.js';
+import boolCoerce from './bool-coerce/transform.js';
 import {
   transformAddUser,
   transformCollectionStats,
@@ -69,6 +70,14 @@ export const v6Codemods: Codemod[] = [
     hop,
     packages: pkg,
     transform: writeConcernOptions,
+  },
+  {
+    id: 'bool-coerce',
+    description: 'Convert numeric boolean options (tls: 1 → tls: true) — coercion removed in v6',
+    kind: 'mechanical',
+    hop,
+    packages: pkg,
+    transform: boolCoerce,
   },
   ...v6EnvChecks.map(e => ({
     ...e,

@@ -5,6 +5,7 @@ import noCursorCount from './v5/no-cursor-count.js';
 import noV6ConnectionOptions from './v6/no-v6-connection-options.js';
 import noBulkResultProps from './v6/no-bulk-result-props.js';
 import noTopLevelWriteConcern from './v6/no-top-level-write-concern.js';
+import noNumericBoolOptions from './v6/no-numeric-bool-options.js';
 import noBetaNamespace from './v7/no-beta-namespace.js';
 import noPoolRetryLabel from './v7/no-pool-retry-label.js';
 import noDeprecatedClientOptions from './v7/no-deprecated-client-options.js';
@@ -22,6 +23,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-v6-connection-options': noV6ConnectionOptions,
   'no-bulk-result-props': noBulkResultProps,
   'no-top-level-write-concern': noTopLevelWriteConcern,
+  'no-numeric-bool-options': noNumericBoolOptions,
   'no-beta-namespace': noBetaNamespace,
   'no-pool-retry-label': noPoolRetryLabel,
   'no-deprecated-client-options': noDeprecatedClientOptions,
