@@ -30,20 +30,31 @@ export async function runCodemods(
   });
 
   const changes: Change[] = [];
+  const parseErrors = new Set<string>();
 
   for (const codemod of codemods) {
     if (codemod.kind === 'env') continue;
 
     for (const relPath of files) {
+      if (parseErrors.has(relPath)) continue;
+
       const absPath = join(cwd, relPath);
       const source = readFileSync(absPath, 'utf8');
 
       const fakeApi = { jscodeshift: j, j, stats: () => {}, report: () => {} } as unknown as API;
-      const result = codemod.transform!(
-        { source, path: relPath },
-        fakeApi,
-        {}
-      );
+      let result: string | null | undefined;
+      try {
+        result = codemod.transform!(
+          { source, path: relPath },
+          fakeApi,
+          {}
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message.split('\n')[0] : String(err);
+        process.stderr.write(`  ⚠ parse error, skipping ${relPath}: ${msg}\n`);
+        parseErrors.add(relPath);
+        continue;
+      }
 
       if (result != null && result !== source) {
         if (!opts.dryRun) writeFileSync(absPath, result, 'utf8');

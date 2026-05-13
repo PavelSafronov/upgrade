@@ -16,8 +16,9 @@ export const nodeVersionCheck: EnvCheck = (cwd) => {
   const engines = (pkg['engines'] as Record<string, string> | undefined) ?? {};
   const current = engines['node'] ?? '';
   const required = '>=20.19.0';
+  // If minimum supported Node major is already >=20, the project manages its own version range — leave it
   const minCurrent = current ? semver.minVersion(current) : null;
-  if (minCurrent && semver.satisfies(minCurrent, required)) return { status: 'ok', message: 'Node version requirement is satisfied' };
+  if (minCurrent && semver.major(minCurrent) >= 20) return { status: 'ok', message: 'Node version requirement is satisfied' };
   engines['node'] = required;
   pkg['engines'] = engines;
   writePkg(cwd, pkg);
@@ -30,17 +31,16 @@ export const mongodbDepBump: EnvCheck = (cwd) => {
   const devDeps = (pkg['devDependencies'] as Record<string, string> | undefined) ?? {};
   const target = '^7.0.0';
 
-  if (deps['mongodb']) {
-    deps['mongodb'] = target;
-    pkg['dependencies'] = deps;
-    writePkg(cwd, pkg);
-    return { status: 'warn', message: `Bumped mongodb to ${target} in dependencies`, autoFixed: true };
-  }
-  if (devDeps['mongodb']) {
-    devDeps['mongodb'] = target;
-    pkg['devDependencies'] = devDeps;
-    writePkg(cwd, pkg);
-    return { status: 'warn', message: `Bumped mongodb to ${target} in devDependencies`, autoFixed: true };
+  for (const [section, map] of [['dependencies', deps], ['devDependencies', devDeps]] as const) {
+    if ((map as Record<string, string>)['mongodb']) {
+      const current = (map as Record<string, string>)['mongodb'];
+      const min = semver.minVersion(current);
+      if (min && semver.satisfies(min, target)) return { status: 'ok', message: 'mongodb already at ^7.x' };
+      (map as Record<string, string>)['mongodb'] = target;
+      pkg[section] = map;
+      writePkg(cwd, pkg);
+      return { status: 'warn', message: `Bumped mongodb to ${target} in ${section}`, autoFixed: true };
+    }
   }
   return { status: 'ok', message: 'mongodb dependency not found (nothing to bump)' };
 };
@@ -54,6 +54,9 @@ function peerDepBump(name: string, target: string): EnvCheck {
 
     for (const [section, map] of [['dependencies', deps], ['devDependencies', devDeps], ['peerDependencies', peerDeps]] as const) {
       if ((map as Record<string, string>)[name]) {
+        const current = (map as Record<string, string>)[name];
+        const min = semver.minVersion(current);
+        if (min && semver.satisfies(min, target)) return { status: 'ok', message: `${name} already satisfies ${target}` };
         (map as Record<string, string>)[name] = target;
         pkg[section] = map;
         writePkg(cwd, pkg);
