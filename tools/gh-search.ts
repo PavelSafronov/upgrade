@@ -164,3 +164,111 @@ export function discoverRepos(limit: number): Map<string, DiscoverItem> {
 
   return repos;
 }
+
+// ── Phase 2: GraphQL batch fetch ───────────────────────────────────────────
+
+const BATCH_SIZE = 20;
+
+export function fetchBatch(
+  batch: Array<{ owner: string; name: string; path: string }>
+): GqlBlobResult {
+  const query = buildGraphQLQuery(batch);
+  const result = spawnSync('gh', ['api', 'graphql', '-f', `query=${query}`], {
+    encoding: 'utf8',
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  if (result.status !== 0) throw new Error(result.stderr || 'GraphQL request failed');
+  const data = JSON.parse(result.stdout) as { data: GqlBlobResult };
+  return data.data;
+}
+
+// ── Main ───────────────────────────────────────────────────────────────────
+
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const limitIdx = args.indexOf('--limit');
+  const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : 300;
+
+  if (!isGhAuthenticated()) {
+    console.error('Error: gh CLI not found or not authenticated. Run: gh auth login');
+    process.exit(1);
+  }
+
+  console.log(`Searching GitHub for repos using mongodb (limit: ${limit})...`);
+  const discovered = discoverRepos(limit);
+  console.log(`Found ${discovered.size} unique repos. Fetching package.json contents...`);
+
+  const items = [...discovered.entries()].map(([fullName, item]) => {
+    const [owner, name] = fullName.split('/');
+    return {
+      owner,
+      name,
+      path: item.path,
+      stars: item.repository.stargazers_count,
+      url: item.repository.html_url,
+    };
+  });
+
+  const batches: typeof items[] = [];
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    batches.push(items.slice(i, i + BATCH_SIZE));
+  }
+
+  const repos: RepoEntry[] = [];
+  let discarded = 0;
+
+  for (let i = 0; i < batches.length; i++) {
+    process.stdout.write(`  Batch ${i + 1}/${batches.length}...\r`);
+    const batch = batches[i];
+    let batchData: GqlBlobResult;
+    try {
+      batchData = fetchBatch(batch);
+    } catch (err) {
+      console.error(`\nWarning: batch ${i + 1} failed: ${String(err)}`);
+      discarded += batch.length;
+      continue;
+    }
+
+    for (let j = 0; j < batch.length; j++) {
+      const item = batch[j];
+      const text = batchData[`r${j}`]?.object?.text;
+      if (!text) { discarded++; continue; }
+      const parsed = parseMongodb(text);
+      if (!parsed) { discarded++; continue; }
+
+      repos.push({
+        owner: item.owner,
+        name: item.name,
+        stars: item.stars,
+        mongodbVersion: parsed.version,
+        majorVersion: deriveMajorVersion(parsed.version),
+        depType: parsed.depType,
+        packageJsonPath: item.path,
+        url: item.url,
+      });
+    }
+  }
+  console.log(''); // end the \r progress line
+
+  const date = new Date().toISOString().slice(0, 10);
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const outputDir = join(__dirname, 'data');
+  mkdirSync(outputDir, { recursive: true });
+  const outputPath = join(outputDir, `gh-search-${date}.json`);
+
+  const output: SearchResult = {
+    meta: { runAt: new Date().toISOString(), totalRepos: repos.length, queryLimit: limit },
+    repos,
+  };
+  writeFileSync(outputPath, JSON.stringify(output, null, 2));
+
+  console.log(formatSummary(repos, limit, discarded, outputPath, date));
+}
+
+// Only run when invoked directly — not when imported by vitest
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch(err => {
+    console.error('Fatal:', (err as Error).message);
+    process.exit(1);
+  });
+}
