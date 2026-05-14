@@ -8,7 +8,7 @@ Living document. Update as work progresses.
 
 - [x] ~~**GitHub Action wrapper**~~ ✅ done — `action.yml` at repo root; composite action using `npx @pavel-safronov/upgrade`; inputs: `working-directory`, `dry-run`, `create-pr`, `from`, `to`; outputs: `changed`, `pr-url`; example workflow at `.github/workflows/example-mongodb-upgrade.yml`
 - [x] ~~**`verify_upgrade` MCP tool**~~ ✅ done — detects package manager from lockfile, runs test suite, returns `{ success, exitCode, testCommand, stdout, stderr, durationMs, timedOut }`; raw output returned for agent to triage; closes the analyze → apply → verify agent loop
-- [ ] **v0.2.0 release** — minor bump covering Flow support, monorepo gh-search, ESLint plugin, corpus regression guard added since v0.1.8
+- [x] ~~**v0.2.0 release**~~ ✅ done — all three packages bumped to v0.2.0; covers Flow file support, monorepo gh-search, peerDependencies, corpus regression guard, GitHub Action, `verify_upgrade` MCP tool
 - [ ] **Codemod for `GridFSBucketWriteStreamOptions` rename** — check v7 changelog; if the type was renamed, add a mechanical transform
 
 ---
