@@ -136,6 +136,39 @@ Returns a human-readable explanation with before/after code and migration notes 
 }
 ```
 
+---
+
+### `verify_upgrade`
+
+Runs the project's test suite and returns the results. Use after `apply_codemod` to confirm the upgrade did not break anything. Detects the package manager (`npm`/`yarn`/`pnpm`) automatically from the lockfile.
+
+**Input:**
+
+```json
+{
+  "path": "/absolute/path/to/project",
+  "timeout": 120   // optional — seconds before killing the run, default 120
+}
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "exitCode": 0,
+  "testCommand": "npm test",
+  "stdout": "...test runner output...",
+  "stderr": "",
+  "durationMs": 4821,
+  "timedOut": false
+}
+```
+
+`success` is `true` only when the test command exits with code 0 and does not time out. The raw `stdout`/`stderr` are included so the agent can read specific failure messages and map them to migration issues.
+
+---
+
 ## Typical agent workflow
 
 ```text
@@ -150,6 +183,10 @@ Agent: apply_codemod({ path: "/my/project", codemod: "all", dryRun: true })
 
 Agent: apply_codemod({ path: "/my/project", codemod: "all" })
   → applies everything, reports summary
+
+Agent: verify_upgrade({ path: "/my/project" })
+  → runs npm test, returns pass/fail + full output
+  → if failures, agent reads stdout and maps them back to TODO comments
 ```
 
 ## Testing manually

@@ -4,6 +4,7 @@ import { CallToolRequestSchema, GetPromptRequestSchema, ListPromptsRequestSchema
 import { analyzeRepo } from './tools/analyze-repo.js';
 import { applyCodemod } from './tools/apply-codemod.js';
 import { explainBreakingChange } from './tools/explain-breaking-change.js';
+import { verifyUpgrade } from './tools/verify-upgrade.js';
 import { PROMPTS } from './prompts.js';
 
 const server = new Server(
@@ -49,6 +50,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ['id'],
       },
     },
+    {
+      name: 'verify_upgrade',
+      description: 'Run the project\'s test suite and return the results. Use after apply_codemod to confirm the upgrade did not break anything.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Absolute path to the project root' },
+          timeout: { type: 'number', description: 'Timeout in seconds before killing the test run (default: 120)' },
+        },
+        required: ['path'],
+      },
+    },
   ],
 }));
 
@@ -77,6 +90,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
   if (name === 'explain_breaking_change') {
     return { content: [{ type: 'text', text: JSON.stringify(explainBreakingChange(args as { id: string }), null, 2) }] };
+  }
+  if (name === 'verify_upgrade') {
+    return { content: [{ type: 'text', text: JSON.stringify(await verifyUpgrade(args as { path: string; timeout?: number }), null, 2) }] };
   }
 
   throw new Error(`Unknown tool: ${name}`);

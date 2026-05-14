@@ -41,6 +41,7 @@ Once wired up, an agent can call three tools:
 | `analyze_repo` | Detects version, plans hops, returns per-file breakdown of issues (dry-run) |
 | `apply_codemod` | Applies a named codemod or `"all"` codemods; supports `dryRun: true` |
 | `explain_breaking_change` | Returns description, before/after example, migration notes for any codemod ID |
+| `verify_upgrade` | Runs the project's test suite; returns pass/fail + full output for the agent to triage |
 
 **Claude Code — this repo**: `.claude/settings.json` is already committed. Reopen the workspace and the `mongodb-upgrade` MCP server is available automatically.
 
