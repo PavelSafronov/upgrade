@@ -1,0 +1,133 @@
+name: 'MongoDB Driver Upgrade'
+description: 'Automatically upgrade the MongoDB Node.js driver and open an upgrade PR'
+author: 'PavelSafronov'
+
+branding:
+  icon: 'arrow-up-circle'
+  color: 'green'
+
+inputs:
+  working-directory:
+    description: 'Directory containing the package.json to upgrade (defaults to repo root)'
+    required: false
+    default: '.'
+  dry-run:
+    description: 'Preview changes without writing files or opening a PR'
+    required: false
+    default: 'false'
+  create-pr:
+    description: >
+      Create a pull request with the changes.
+      Requires contents:write and pull-requests:write permissions.
+    required: false
+    default: 'true'
+  from:
+    description: 'Override detected source version major (e.g. 6). Auto-detected if omitted.'
+    required: false
+    default: ''
+  to:
+    description: 'Override target version major (e.g. 7).'
+    required: false
+    default: ''
+  github-token:
+    description: 'GitHub token used to create the pull request.'
+    required: false
+    default: '${{ github.token }}'
+
+outputs:
+  changed:
+    description: 'Whether any source files were modified (true or false).'
+    value: ${{ steps.check-changes.outputs.changed }}
+  pr-url:
+    description: 'URL of the pull request opened, if create-pr is true and changes were found.'
+    value: ${{ steps.create-pr.outputs.pr-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run MongoDB driver upgrade CLI
+      id: upgrade
+      shell: bash
+      run: |
+        cd "${{ inputs.working-directory }}"
+
+        ARGS=()
+        if [ "${{ inputs.dry-run }}" = "true" ]; then
+          ARGS+=(--dry-run)
+        fi
+        if [ -n "${{ inputs.from }}" ]; then
+          ARGS+=(--from "${{ inputs.from }}")
+        fi
+        if [ -n "${{ inputs.to }}" ]; then
+          ARGS+=(--to "${{ inputs.to }}")
+        fi
+
+        # Run and capture output for PR description
+        npx --yes @pavel-safronov/upgrade . "${ARGS[@]}" 2>&1 | tee "$RUNNER_TEMP/upgrade-output.txt"
+
+    - name: Check for changes
+      id: check-changes
+      shell: bash
+      run: |
+        cd "${{ inputs.working-directory }}"
+        if git diff --quiet && git diff --staged --quiet; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "No changes detected."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "Changes detected."
+        fi
+
+    - name: Create pull request
+      id: create-pr
+      if: >
+        inputs.create-pr == 'true' &&
+        inputs.dry-run == 'false' &&
+        steps.check-changes.outputs.changed == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        cd "${{ inputs.working-directory }}"
+
+        BRANCH="mongodb-driver-upgrade-$(date +%Y%m%d-%H%M%S)"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b "$BRANCH"
+        git add -A
+        git commit -m "chore: upgrade MongoDB Node.js driver"
+        git push origin "$BRANCH"
+
+        # Build PR body in a temp file to avoid shell quoting issues
+        cat > "$RUNNER_TEMP/pr-body.md" <<'PRBODY'
+## MongoDB Driver Upgrade
+
+This PR was opened automatically by the [mongodb-upgrade](https://github.com/PavelSafronov/upgrade) GitHub Action.
+
+### What changed
+
+PRBODY
+
+        echo '```' >> "$RUNNER_TEMP/pr-body.md"
+        cat "$RUNNER_TEMP/upgrade-output.txt" >> "$RUNNER_TEMP/pr-body.md"
+        echo '```' >> "$RUNNER_TEMP/pr-body.md"
+
+        cat >> "$RUNNER_TEMP/pr-body.md" <<'PRBODY'
+
+### Review checklist
+
+- **Mechanical transforms** (renames, removed options) have been applied automatically — verify the diff looks correct.
+- **Semantic flags** (`TODO(mongodb-upgrade):` comments) require human review. They mark spots where the correct migration depends on your application logic.
+- **Environment checks** (`package.json` dep bump, `engines.node`) have been updated — confirm they match your infrastructure.
+
+Run your test suite on this branch before merging.
+PRBODY
+
+        PR_URL=$(gh pr create \
+          --title "chore: upgrade MongoDB Node.js driver" \
+          --body-file "$RUNNER_TEMP/pr-body.md" \
+          --head "$BRANCH")
+
+        echo "pr-url=$PR_URL" >> "$GITHUB_OUTPUT"
+        echo "Pull request opened: $PR_URL"

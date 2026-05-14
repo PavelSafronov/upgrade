@@ -59,6 +59,50 @@ Once wired up, an agent can call three tools:
 
 See [packages/mcp/README.md](packages/mcp/README.md) for full tool schemas.
 
+## GitHub Action
+
+Add to any repo to get automated upgrade PRs on a schedule:
+
+```yaml
+# .github/workflows/mongodb-upgrade.yml
+name: MongoDB Driver Upgrade
+on:
+  schedule:
+    - cron: '0 9 1 * *'   # first of each month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: PavelSafronov/upgrade@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+| Input | Default | Description |
+| --- | --- | --- |
+| `working-directory` | `.` | Path to the package root |
+| `dry-run` | `false` | Preview without writing or opening a PR |
+| `create-pr` | `true` | Open a PR with the changes |
+| `from` | auto | Override detected source version major |
+| `to` | `7` | Override target version major |
+
+| Output | Description |
+| --- | --- |
+| `changed` | `true` if any files were modified |
+| `pr-url` | URL of the opened PR |
+
+See [`.github/workflows/example-mongodb-upgrade.yml`](.github/workflows/example-mongodb-upgrade.yml) for a full annotated example.
+
 ## Development
 
 ```bash

@@ -1,0 +1,37 @@
+# Example: run the MongoDB driver upgrade action on a schedule and on manual trigger.
+# Copy this file into your own repo's .github/workflows/ to use it.
+
+name: MongoDB Driver Upgrade
+
+on:
+  # Run automatically on the first day of each month
+  schedule:
+    - cron: '0 9 1 * *'
+  # Also allow triggering manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Preview only — do not open a PR'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Upgrade MongoDB driver
+        uses: PavelSafronov/upgrade@main
+        with:
+          dry-run: ${{ inputs.dry-run || 'false' }}
+          create-pr: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}

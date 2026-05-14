@@ -4,6 +4,15 @@ Living document. Update as work progresses.
 
 ---
 
+## 🔲 Todos (next)
+
+- [x] ~~**GitHub Action wrapper**~~ ✅ done — `action.yml` at repo root; composite action using `npx @pavel-safronov/upgrade`; inputs: `working-directory`, `dry-run`, `create-pr`, `from`, `to`; outputs: `changed`, `pr-url`; example workflow at `.github/workflows/example-mongodb-upgrade.yml`
+- [ ] **`verify_upgrade` MCP tool** — runs the project's test suite post-codemod, parses failures, maps them back to migration issues; closes the agent loop (analyze → apply → verify)
+- [ ] **v0.2.0 release** — minor bump covering Flow support, monorepo gh-search, ESLint plugin, corpus regression guard added since v0.1.8
+- [ ] **Codemod for `GridFSBucketWriteStreamOptions` rename** — check v7 changelog; if the type was renamed, add a mechanical transform
+
+---
+
 ## 🔲 Todos (immediate)
 
 - [x] ~~Publish v0.1.8 with the two bug fixes committed since v0.1.7~~ ✅ done
@@ -66,7 +75,7 @@ Analyzed top 4 v6 repos from the landscape snapshot: `erxes/erxes`, `rubynor/big
 - **Atlas in-product nudge** — "your app is connecting with driver v4.2; we can help you upgrade." Atlas already sees driver versions in connection metadata. Would need Atlas team buy-in; mentioned in `docs/strategy.md` §5.
 - ~~**Flow file support**~~ ✅ done — files with `// @flow` pragma are now parsed with `recast/parsers/flow` (Babel + flow plugin) instead of `tsx`. All existing transforms work correctly on Flow files (same Babel AST node types). Corpus regression fixture added (`test/corpus/parse-server/`).
 - ~~**Expand `gh-search` coverage**~~ ✅ done — added `peerDependencies` to `parseMongodb()` (surfaces library repos that peer-depend on mongodb); changed `discoverRepos()` to keep up to 3 candidate paths per repo so monorepo sub-packages are no longer dropped when the root `package.json` has no mongodb dep.
-- **GitHub Action wrapper** — wraps CLI, opens upgrade PR automatically; mentioned in `docs/strategy.md` §5.
+- ~~**GitHub Action wrapper**~~ ✅ done — `action.yml` at repo root; schedule + manual trigger example workflow included.
 - **Mongoose cross-team conversation** — they may want to call our codemod primitives from their own upgrade tooling.
 - **Codemod for `GridFSBucketWriteStreamOptions` rename** — may have changed in v7; worth checking the changelog.
 
