@@ -9,7 +9,7 @@ Living document. Update as work progresses.
 - [x] ~~**GitHub Action wrapper**~~ ✅ done — `action.yml` at repo root; composite action using `npx @pavel-safronov/upgrade`; inputs: `working-directory`, `dry-run`, `create-pr`, `from`, `to`; outputs: `changed`, `pr-url`; example workflow at `.github/workflows/example-mongodb-upgrade.yml`
 - [x] ~~**`verify_upgrade` MCP tool**~~ ✅ done — detects package manager from lockfile, runs test suite, returns `{ success, exitCode, testCommand, stdout, stderr, durationMs, timedOut }`; raw output returned for agent to triage; closes the analyze → apply → verify agent loop
 - [x] ~~**v0.2.0 release**~~ ✅ done — all three packages bumped to v0.2.0; covers Flow file support, monorepo gh-search, peerDependencies, corpus regression guard, GitHub Action, `verify_upgrade` MCP tool
-- [ ] **Codemod for `GridFSBucketWriteStreamOptions` rename** — check v7 changelog; if the type was renamed, add a mechanical transform
+- [x] ~~**Codemod for `GridFSBucketWriteStreamOptions` rename**~~ ✅ no action needed — `GridFSBucketWriteStreamOptions` is present in mongodb v7 under the same name; no rename occurred
 
 ---
 
@@ -77,7 +77,7 @@ Analyzed top 4 v6 repos from the landscape snapshot: `erxes/erxes`, `rubynor/big
 - ~~**Expand `gh-search` coverage**~~ ✅ done — added `peerDependencies` to `parseMongodb()` (surfaces library repos that peer-depend on mongodb); changed `discoverRepos()` to keep up to 3 candidate paths per repo so monorepo sub-packages are no longer dropped when the root `package.json` has no mongodb dep.
 - ~~**GitHub Action wrapper**~~ ✅ done — `action.yml` at repo root; schedule + manual trigger example workflow included.
 - **Mongoose cross-team conversation** — they may want to call our codemod primitives from their own upgrade tooling.
-- **Codemod for `GridFSBucketWriteStreamOptions` rename** — may have changed in v7; worth checking the changelog.
+- ~~**Codemod for `GridFSBucketWriteStreamOptions` rename**~~ ✅ no action needed — type name unchanged in v7.
 
 ---
 
