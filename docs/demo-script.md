@@ -83,7 +83,7 @@ cat .github/workflows/example-mongodb-upgrade.yml
 
 ## 8. Wrap (10 s — spoken)
 
-> "Three packages, published on npm at v0.2.0. The CLI covers 28 codemods across v4→v5→v6→v7, validated against 10 real-world repos. The whole thing is open source."
+> "Three packages, published on npm at v0.2.0. The CLI covers 28 codemods across v4→v5→v6→v7, validated against 10 real-world repos. The whole thing is open source. And — to meet the hackathon brief — every line of code in this repo was written by Claude. I described what I wanted; Claude designed, implemented, tested, and debugged all of it."
 
 ---
 
