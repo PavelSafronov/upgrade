@@ -42,11 +42,7 @@ function connectClient(uri: string) {
 }
 
 // --- Mechanical: remove-deprecated-types ---
-const closeOpts: CloseOptions = {};
-const token: CancellationToken = {} as CancellationToken;
-const resumeOpts: ResumeOptions = {};
-const svrCaps: ServerCapabilities = {} as ServerCapabilities;
-const metaOpts: ClientMetadataOptions = {} as ClientMetadataOptions;
+// (The deprecated imports above are detected and removed by the codemod.)
 
 // --- Mechanical: remove-gridfs-deprecated ---
 const writeStreamOpts: GridFSBucketWriteStreamOptions = {
