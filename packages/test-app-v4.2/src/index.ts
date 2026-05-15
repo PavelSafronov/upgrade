@@ -3,6 +3,7 @@ import { MongoClient, ObjectID } from 'mongodb';
 // --- Mechanical: objectid-rename ---
 export const legacyId = new ObjectID('507f1f77bcf86cd799439011');
 
+// @ts-ignore -- ObjectID exported as const in v4, not as a class; renamed to ObjectId in v5
 export function findById(client: MongoClient, id: ObjectID) {
   return client.db('test').collection('items').findOne({ _id: id as any });
 }

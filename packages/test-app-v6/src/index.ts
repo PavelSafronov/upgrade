@@ -14,7 +14,7 @@ import type { GridFSBucketWriteStreamOptions } from 'mongodb';
 // --- Mechanical: stream-transform ---
 async function streamExample(client: MongoClient) {
   const cursor = client.db('test').collection('docs').find({});
-  const stream = cursor.stream({ transform: JSON.stringify });
+  const stream = cursor.stream({ transform: JSON.stringify as any });
   return stream;
 }
 
@@ -37,7 +37,7 @@ function connectClient(uri: string) {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     maxPoolSize: 10,
-  });
+  } as any);
 }
 
 // --- Mechanical: remove-deprecated-types ---
@@ -58,6 +58,7 @@ const writeStreamOpts: GridFSBucketWriteStreamOptions = {
 const findOpts: FindOptions<{ name: string }> = { limit: 10 };
 
 // --- Mechanical: remove-property-access ---
+// @ts-ignore -- instance property accessed as static; removed in v7
 const minWire = ReadPreference.minWireVersion;
 
 async function sessionExample(client: MongoClient) {

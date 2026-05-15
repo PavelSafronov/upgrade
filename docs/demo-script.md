@@ -1,7 +1,7 @@
 # Demo Script — MongoDB Upgrade Toolkit
 
 **Target time: ~2:30**  
-**Terminal font size: large. Prereqs: repo cloned, `npm install` done, `node packages/cli/dist/index.js` aliased or path known.**
+**Terminal font size: large. Prereqs: repo cloned, `npm install` done, internet access for `npx`.**
 
 ---
 
@@ -9,7 +9,7 @@
 
 ```bash
 # Reset test app to "before" state
-git checkout -- packages/test-app-v6/
+git checkout **-**- packages/test-app-v6/
 ```
 
 ---
@@ -33,7 +33,7 @@ cat packages/test-app-v6/src/index.ts
 ## 3. Dry run (25 s)
 
 ```bash
-node packages/cli/dist/index.js packages/test-app-v6 --dry-run
+npx @pavel-safronov/upgrade packages/test-app-v6 --dry-run
 ```
 
 > "The CLI detects v6, plans the v6→v7 hop, and tells us exactly what it would change — per file, per codemod. Nothing written yet."
@@ -43,7 +43,7 @@ node packages/cli/dist/index.js packages/test-app-v6 --dry-run
 ## 4. Apply (20 s)
 
 ```bash
-node packages/cli/dist/index.js packages/test-app-v6
+npx @pavel-safronov/upgrade packages/test-app-v6
 git diff packages/test-app-v6/
 ```
 
@@ -83,7 +83,7 @@ cat .github/workflows/example-mongodb-upgrade.yml
 
 ## 8. Wrap (10 s — spoken)
 
-> "Three packages, published on npm at v0.2.0. The CLI covers 28 codemods across v4→v5→v6→v7, validated against 10 real-world repos. The whole thing is open source. And — to meet the hackathon brief — every line of code in this repo was written by Claude. I described what I wanted; Claude designed, implemented, tested, and debugged all of it."
+> "Three packages, published on npm at v0.2.0. The CLI covers 28 codemods across v4→v5→v6→v7, validated against 10 real-world repos. The whole thing is open source. And — on the Skunkworks theme — every line of code in this repo was written by Claude. I described what I wanted; Claude designed, implemented, tested, and debugged all of it."
 
 ---
 

@@ -57,6 +57,7 @@ describe('bulkWriteWithKeepGoing', () => {
   it('returns a BulkWriteResult', async () => {
     const result = await bulkWriteWithKeepGoing(client);
     expect(result).toBeDefined();
+    // @ts-ignore -- v4.2 overloads resolve bulkWrite to void when options is `any`; runtime returns BulkWriteResult
     expect(typeof result.insertedCount).toBe('number');
   });
 });
