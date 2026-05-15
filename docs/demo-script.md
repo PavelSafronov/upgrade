@@ -1,15 +1,18 @@
 # Demo Script — MongoDB Upgrade Toolkit
 
 **Target time: ~2:30**  
-**Terminal font size: large. Prereqs: repo cloned, `npm install` done, internet access for `npx`.**
+**Terminal font size: large.**
 
 ---
 
 ## Setup (before presenting)
 
 ```bash
+# One-time: build the CLI and link the workspace binary
+npm run build -w packages/cli && npm install
+
 # Reset test app to "before" state
-git checkout **-**- packages/test-app-v6/
+git checkout -- packages/test-app-v6/
 ```
 
 ---

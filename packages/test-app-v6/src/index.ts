@@ -14,7 +14,8 @@ import type { GridFSBucketWriteStreamOptions } from 'mongodb';
 // --- Mechanical: stream-transform ---
 async function streamExample(client: MongoClient) {
   const cursor = client.db('test').collection('docs').find({});
-  const stream = cursor.stream({ transform: JSON.stringify as any });
+  // @ts-ignore -- transform option removed in v7; JSON.stringify return type doesn't match Document
+  const stream = cursor.stream({ transform: JSON.stringify });
   return stream;
 }
 
