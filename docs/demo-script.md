@@ -8,8 +8,8 @@
 ## Setup (before presenting)
 
 ```bash
-# One-time: build the CLI and link the workspace binary
-npm run build -w packages/cli && npm install
+# One-time: build all packages and link workspace binaries
+npm run build && npm install
 
 # Reset test app to "before" state
 git checkout -- packages/test-app-v6/
@@ -58,7 +58,7 @@ git diff packages/test-app-v6/
 
 ```bash
 cd packages/test-app-v6
-npx eslint src/ --rulesdir ../../eslint-plugin/dist --rule '{"mongodb-upgrade/no-stream-transform-option": "error"}' 2>/dev/null | head -10
+npx eslint --ext .ts src/ --no-eslintrc --config .eslintrc-demo.json 2>&1 | head -10
 cd ../..
 ```
 

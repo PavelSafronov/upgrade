@@ -1,0 +1,7 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@pavel-safronov/mongodb-upgrade"],
+  "rules": {
+    "@pavel-safronov/mongodb-upgrade/no-stream-transform": "error"
+  }
+}
